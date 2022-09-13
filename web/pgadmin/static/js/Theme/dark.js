@@ -100,7 +100,16 @@ export default function(basicSettings) {
       cardHeaderBg: '#424242',
       colorFg: '#FFFFFF',
       emptySpaceBg: '#212121',
-      textMuted: '#8A8A8A'
+      textMuted: '#8A8A8A',
+      erdCanvasBg: '#303030',
+      erdGridColor: '#444952',
+      schemaDiff: {
+        diffRowColor: '#807a48',
+        sourceRowColor: '#402025',
+        targetRowColor: '#6b5438',
+        diffColorFg: '#d4d4d4',
+        diffSelectFG: '#d4d4d4'
+      }
     }
   });
 }

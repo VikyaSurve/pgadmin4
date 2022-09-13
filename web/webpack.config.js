@@ -43,7 +43,6 @@ const providePlugin = new webpack.ProvidePlugin({
   'window.jQuery': 'jquery',
   _: 'underscore',
   Backbone: 'backbone',
-  Backgrid: 'backgrid',
   pgAdmin: 'pgadmin',
   'moment': 'moment',
   'window.moment':'moment',
@@ -56,7 +55,7 @@ const providePlugin = new webpack.ProvidePlugin({
 // Reference: https://webpack.js.org/plugins/source-map-dev-tool-plugin/#components/sidebar/sidebar.jsx
 const sourceMapDevToolPlugin = new webpack.SourceMapDevToolPlugin({
   filename: '[name].js.map',
-  exclude: /(vendor|codemirror|slickgrid|pgadmin\.js|pgadmin.theme|pgadmin.static|style\.js|popper)/,
+  exclude: /(vendor|codemirror|pgadmin\.js|pgadmin.theme|pgadmin.static|style\.js|popper)/,
   columns: false,
 });
 
@@ -177,7 +176,7 @@ fs.readdirSync(all_themes_dir).map(function(curr_dir) {
 
 fs.writeFileSync(pgadminThemesJson, JSON.stringify(pgadminThemes, null, 4));
 
-var themeCssRules = function(theme_name) {
+let themeCssRules = function(theme_name) {
   return [{
     test: /\.svg$/,
     oneOf: [
@@ -286,7 +285,7 @@ var themeCssRules = function(theme_name) {
   }];
 };
 
-var getThemeWebpackConfig = function(theme_name) {
+let getThemeWebpackConfig = function(theme_name) {
   return {
     mode: envType,
     devtool: devToolVal,
@@ -360,7 +359,7 @@ var getThemeWebpackConfig = function(theme_name) {
   };
 };
 
-var pgadminThemesWebpack = [];
+let pgadminThemesWebpack = [];
 Object.keys(pgadminThemes).forEach((theme_name)=>{
   pgadminThemesWebpack.push(getThemeWebpackConfig(theme_name));
 });
@@ -376,10 +375,9 @@ module.exports = [{
   entry: {
     'app.bundle': sourceDir + '/bundle/app.js',
     codemirror: sourceDir + '/bundle/codemirror.js',
-    slickgrid: sourceDir + '/bundle/slickgrid.js',
     sqleditor: './pgadmin/tools/sqleditor/static/js/index.js',
-    schema_diff: './pgadmin/tools/schema_diff/static/js/schema_diff_hook.js',
-    erd_tool: './pgadmin/tools/erd/static/js/erd_tool_hook.js',
+    schema_diff: './pgadmin/tools/schema_diff/static/js/index.js',
+    erd_tool: './pgadmin/tools/erd/static/js/index.js',
     psql_tool: './pgadmin/tools/psql/static/js/index.js',
     debugger: './pgadmin/tools/debugger/static/js/index.js',
     'pgadmin.style': pgadminCssStyles,
@@ -407,7 +405,7 @@ module.exports = [{
     //
     // imports-loader: it adds dependent modules(use:imports-loader?module1)
     // at the beginning of module it is dependency of like:
-    // var jQuery = require('jquery'); var browser = require('pgadmin.browser')
+    // let jQuery = require('jquery'); let browser = require('pgadmin.browser')
     // It solves number of problems
     // Ref: http:/github.com/webpack-contrib/imports-loader/
     rules: [{
@@ -462,7 +460,7 @@ module.exports = [{
     }, {
       // imports-loader: it adds dependent modules(use:imports-loader?module1)
       // at the beginning of module it is dependency of like:
-      // var jQuery = require('jquery'); var browser = require('pgadmin.browser')
+      // let jQuery = require('jquery'); let browser = require('pgadmin.browser')
       // It solves number of problems
       // Ref: http:/github.com/webpack-contrib/imports-loader/
       test: require.resolve('./pgadmin/tools/sqleditor/static/js/index'),
@@ -546,7 +544,7 @@ module.exports = [{
             'pure|pgadmin.tools.schema_diff',
             'pure|pgadmin.tools.file_manager',
             'pure|pgadmin.tools.search_objects',
-            'pure|pgadmin.tools.erd_module',
+            'pure|pgadmin.tools.erd',
             'pure|pgadmin.tools.psql_module',
             'pure|pgadmin.tools.sqleditor',
             'pure|pgadmin.misc.cloud',

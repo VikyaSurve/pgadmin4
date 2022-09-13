@@ -6,19 +6,19 @@
 // This software is released under the PostgreSQL Licence
 //
 //////////////////////////////////////////////////////////////
-
+import _ from 'lodash';
 define([
-  'underscore', 'sources/pgadmin', 'jquery', 'wcdocker',
-], function(_, pgAdmin, $) {
+  'sources/pgadmin', 'jquery', 'wcdocker',
+], function(pgAdmin, $) {
 
-  var pgBrowser = pgAdmin.Browser = pgAdmin.Browser || {},
+  let pgBrowser = pgAdmin.Browser = pgAdmin.Browser || {},
     wcDocker = window.wcDocker,
     wcIFrame = window.wcIFrame;
 
   pgAdmin.Browser.Frame = function(options) {
-    var defaults = [
+    let defaults = [
       'name', 'title', 'width', 'height', 'showTitle', 'isCloseable',
-      'isPrivate', 'url', 'icon', 'onCreate', 'isLayoutMember',
+      'isPrivate', 'url', 'icon', 'onCreate', 'isLayoutMember', 'isRenamable',
     ];
     _.extend(this, _.pick(options, defaults));
   };
@@ -39,7 +39,7 @@ define([
     frame: null,
     onCreate: null,
     load: function(docker) {
-      var that = this;
+      let that = this;
       if (!that.panel) {
         docker.registerPanelType(this.name, {
           title: that.title,
@@ -49,7 +49,7 @@ define([
             $(myPanel).data('pgAdminName', that.name);
             myPanel.initSize(that.width, that.height);
 
-            if (myPanel.showTitle == false)
+            if (!(myPanel.showTitle??true))
               myPanel.title(false);
 
             myPanel.icon(that.icon);
@@ -57,10 +57,10 @@ define([
             myPanel.closeable(!!that.isCloseable);
             myPanel.renamable(that.isRenamable);
 
-            var $frameArea = $('<div style="position:absolute;top:0 !important;width:100%;height:100%;display:table;z-index:0;">');
+            let $frameArea = $('<div style="position:absolute;top:0 !important;width:100%;height:100%;display:table;z-index:0;">');
             myPanel.layout().addItem($frameArea);
             that.panel = myPanel;
-            var frame = new wcIFrame($frameArea, myPanel);
+            let frame = new wcIFrame($frameArea, myPanel);
             $(myPanel).data('frameInitialized', false);
             $(myPanel).data('embeddedFrame', frame);
 
@@ -112,7 +112,7 @@ define([
       }
     },
     eventFunc: function(eventName) {
-      var name = $(this).data('pgAdminName');
+      let name = $(this).data('pgAdminName');
 
       try {
         pgBrowser.Events.trigger('pgadmin-browser:frame', eventName, this, arguments);

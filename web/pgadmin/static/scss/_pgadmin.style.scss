@@ -130,15 +130,6 @@
 .opacity-5 {
   opacity: 0.5;  }
 
-.alertify .ajs-header,
-.alertify .ajs-body {
-  font-family: $font-family-primary;
-}
-
-.alertify .ajs-body {
-  min-height: $footer-height-calc*1.5;
-}
-
 .pg-navbar {
   font-size: $navbar-font-size;
   background-color: $navbar-bg;
@@ -193,15 +184,6 @@
 
 .pg-prop-btn-group .dropdown-menu {
   min-width: initial;
-}
-
-.pg-prop-btn-group .backgrid-filter.form-search {
-  position: relative;
-  width: 248px;
-  height: 30px;
-  float: right;
-  margin-top: 2px;
-  margin-right: 10px;
 }
 
 .pg-prop-content {
@@ -736,10 +718,6 @@ div.rolmembership {
       border-bottom: $panel-border;
     }
   }
-
-  .backgrid.pgadmin-control-group {
-    margin-bottom: 0rem !important;
-  }
 }
 
 table tr th {
@@ -831,18 +809,6 @@ body {
 /* Security label's label column font size */
 .override_label_class_font_size {
   font-size: inherit !important;
-}
-
-/* CSS for custom checkbox editor in SlickGrid */
-.multi-checkbox .check {
-  display: inline-block;
-  vertical-align: top;
-  width: 16px;
-  height: 16px;
-  border: 1px solid  $color-gray-dark;
-  margin: 3px;
-  text-align: center;
-  line-height: 16px;
 }
 
 .multi-checkbox .check.checked,

@@ -9,11 +9,12 @@
 
 import { getNodeListByName } from '../../../../../../../../../static/js/node_ajax';
 import UniqueConstraintSchema from './unique_constraint.ui';
+import _ from 'lodash';
 
 define('pgadmin.node.unique_constraint', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
+  'sources/gettext', 'sources/url_for',
   'sources/pgadmin', 'pgadmin.browser', 'pgadmin.browser.collection',
-], function(gettext, url_for, $, _, pgAdmin, pgBrowser) {
+], function(gettext, url_for, pgAdmin, pgBrowser) {
 
   // Extend the browser's node class for index constraint node
   if (!pgBrowser.Nodes['unique_constraint']) {
@@ -51,10 +52,10 @@ define('pgadmin.node.unique_constraint', [
       },
       canCreate: function(itemData, item, data) {
         // If check is false then , we will allow create menu
-        if (data && data.check == false)
+        if (data && !data.check)
           return true;
 
-        var t = pgBrowser.tree, i = item, d = itemData, parents = [],
+        let t = pgBrowser.tree, i = item, d = itemData, parents = [],
           immediate_parent_table_found = false,
           is_immediate_parent_table_partitioned = false,
           s_version = pgBrowser.tree.getTreeNodeHierarchy(i).server.version;

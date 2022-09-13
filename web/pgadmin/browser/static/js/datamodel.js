@@ -6,11 +6,12 @@
 // This software is released under the PostgreSQL Licence
 //
 //////////////////////////////////////////////////////////////
+import _ from 'lodash';
 
 define([
-  'underscore', 'sources/pgadmin', 'jquery', 'backbone', 'sources/utils',
-], function(_, pgAdmin, $, Backbone, pgadminUtils) {
-  var pgBrowser = pgAdmin.Browser = pgAdmin.Browser || {};
+  'sources/pgadmin', 'jquery', 'backbone', 'sources/utils',
+], function(pgAdmin, $, Backbone, pgadminUtils) {
+  let pgBrowser = pgAdmin.Browser = pgAdmin.Browser || {};
 
   pgBrowser.DataModel = Backbone.Model.extend({
     /*
@@ -18,15 +19,15 @@ define([
      */
     on_server: false,
     parse: function(res) {
-      var self = this;
+      let self = this;
       if (res && _.isObject(res) && 'node' in res && res['node']) {
         self.tnode = _.extend({}, res.node);
         delete res.node;
       }
-      var objectOp = function(schema) {
+      let objectOp = function(schema) {
         if (schema && _.isArray(schema)) {
           _.each(schema, function(s) {
-            var obj, val;
+            let obj, val;
             switch (s.type) {
             case 'collection':
               obj = self.get(s.id);
@@ -131,7 +132,7 @@ define([
     },
     primary_key: function() {
       if (this.keys && _.isArray(this.keys)) {
-        var res = {},
+        let res = {},
           self = this;
 
         _.each(self.keys, function(k) {
@@ -143,7 +144,7 @@ define([
       return this.cid;
     },
     initialize: function(attributes, options) {
-      var self = this;
+      let self = this;
       self._previous_key_values = {};
 
       if (!_.isUndefined(options) && 'on_server' in options && options.on_server) {
@@ -169,8 +170,8 @@ define([
       self.errorModel = new Backbone.Model();
       self.node_info = options.node_info;
 
-      var obj;
-      var objectOp = function(schema) {
+      let obj;
+      let objectOp = function(schema) {
         if (schema && _.isArray(schema)) {
           _.each(schema, function(s) {
 
@@ -203,7 +204,7 @@ define([
               if (!obj || !(obj instanceof pgBrowser.Node.Collection)) {
                 if (_.isString(s.model) &&
                     s.model in pgBrowser.Nodes) {
-                  var node = pgBrowser.Nodes[s.model];
+                  let node = pgBrowser.Nodes[s.model];
                   obj = new(node.Collection)(obj, {
                     model: node.model,
                     top: self.top || self,
@@ -282,7 +283,7 @@ define([
     },
     // Create a reset function, which allow us to remove the nested object.
     reset: function(opts) {
-      var obj,
+      let obj,
         reindex = !!(opts && opts.reindex);
 
       if (opts && opts.stop)
@@ -293,7 +294,7 @@ define([
         return;
       }
 
-      for (var id in this.objects) {
+      for (let id in this.objects) {
         obj = this.get(id);
 
         if (obj) {
@@ -317,11 +318,11 @@ define([
       Backbone.Collection.prototype.reset.apply(this, arguments);
     },
     sessChanged: function() {
-      var self = this;
+      let self = this;
 
       return (_.size(self.sessAttrs) > 0 ||
         _.some(self.objects, function(k) {
-          var obj = self.get(k);
+          let obj = self.get(k);
           if (!(_.isNull(obj) || _.isUndefined(obj))) {
             return obj.sessChanged();
           }
@@ -329,27 +330,24 @@ define([
         }));
     },
     sessValid: function() {
-      var self = this;
+      let self = this;
       // Perform default validations.
       if ('default_validate' in self && typeof(self.default_validate) == 'function' &&
         _.isString(self.default_validate())) {
         return false;
       }
 
-      if ('validate' in self && _.isFunction(self.validate) &&
-        _.isString(self.validate.apply(self))) {
-        return false;
-      }
-      return true;
+      return !('validate' in self && _.isFunction(self.validate) &&
+        _.isString(self.validate.apply(self)));
     },
     set: function(key, val, options) {
-      var opts = _.isObject(key) ? val : options;
+      let opts = _.isObject(key) ? val : options;
 
       this._changing = true;
       this._previousAttributes = _.clone(this.attributes);
       this.changed = {};
 
-      var res = Backbone.Model.prototype.set.call(this, key, val, options);
+      let res = Backbone.Model.prototype.set.call(this, key, val, options);
       this._changing = false;
 
       if ((opts && opts.internal) || !this.trackChanges) {
@@ -357,11 +355,11 @@ define([
       }
 
       if (key != null && res) {
-        var attrs = {},
+        let attrs = {},
           self = this,
           msg;
 
-        var attrChanged = function(v, k) {
+        let attrChanged = function(v, k) {
           if (k in self.objects) {
             return;
           }
@@ -441,10 +439,10 @@ define([
      * only from the parent object.
      */
     toJSON: function(session, method) {
-      var self = this,
+      let self = this,
         res, isNew = self.isNew();
 
-      session = (typeof(session) != 'undefined' && session == true);
+      session = (typeof(session) != 'undefined' && session);
 
       if (!session || isNew) {
         res = Backbone.Model.prototype.toJSON.call(this, arguments);
@@ -461,7 +459,7 @@ define([
       _.each(
         self.objects,
         function(k) {
-          var obj = self.get(k);
+          let obj = self.get(k);
           /*
            * For session changes, we only need the modified data to be
            * transformed to JSON data.
@@ -505,7 +503,7 @@ define([
       return res;
     },
     startNewSession: function() {
-      var self = this;
+      let self = this;
 
       if (self.trackChanges) {
         self.trigger('pgadmin-session:stop', self);
@@ -521,7 +519,7 @@ define([
       self.origSessAttrs = _.clone(self.attributes);
 
       _.each(self.objects, function(o) {
-        var obj = self.get(o);
+        let obj = self.get(o);
 
         if (_.isUndefined(obj) || _.isNull(obj)) {
           return;
@@ -548,18 +546,18 @@ define([
     },
 
     onChildInvalid: function(msg, obj) {
-      var self = this;
+      let self = this;
 
       if (self.trackChanges && obj) {
-        var objName = obj.attrName;
+        let objName = obj.attrName;
 
         if (!objName) {
-          var hasPrimaryKey = obj.primary_key &&
+          let hasPrimaryKey = obj.primary_key &&
             typeof(obj.primary_key) === 'function';
-          var key = hasPrimaryKey ? obj.primary_key() : obj.cid,
+          let key = hasPrimaryKey ? obj.primary_key() : obj.cid,
             comparator = hasPrimaryKey ?
               function(k) {
-                var o = self.get('k');
+                let o = self.get('k');
 
                 if (o && o.primary_key() === key) {
                   objName = k;
@@ -569,7 +567,7 @@ define([
                 return false;
               } :
               function(k) {
-                var o = self.get(k);
+                let o = self.get(k);
 
                 if (o.cid === key) {
                   objName = k;
@@ -598,18 +596,18 @@ define([
       return this;
     },
     onChildValid: function(obj) {
-      var self = this;
+      let self = this;
 
       if (self.trackChanges && obj) {
-        var objName = obj.attrName;
+        let objName = obj.attrName;
 
         if (!objName) {
-          var hasPrimaryKey = (obj.primary_key &&
+          let hasPrimaryKey = (obj.primary_key &&
             (typeof(obj.primary_key) === 'function'));
-          var key = hasPrimaryKey ? obj.primary_key() : obj.cid,
+          let key = hasPrimaryKey ? obj.primary_key() : obj.cid,
             comparator = hasPrimaryKey ?
               function(k) {
-                var o = self.get('k');
+                let o = self.get('k');
 
                 if (o && o.primary_key() === key) {
                   objName = k;
@@ -619,7 +617,7 @@ define([
                 return false;
               } :
               function(k) {
-                var o = self.get('k');
+                let o = self.get('k');
 
                 if (o && o.cid === key) {
                   objName = k;
@@ -632,7 +630,7 @@ define([
           _.findIndex(self.objects, comparator);
         }
 
-        var msg = null,
+        let msg = null,
           validate = function(m, attrs) {
             if ('default_validate' in m && typeof(m.default_validate) == 'function') {
               msg = m.default_validate();
@@ -650,7 +648,7 @@ define([
           };
 
         if (obj instanceof Backbone.Collection) {
-          for (var idx in obj.models) {
+          for (let idx in obj.models) {
             if (validate(obj.models[idx]))
               break;
           }
@@ -703,11 +701,11 @@ define([
 
     onChildCollectionChanged: function(obj, obj_hand) {
 
-      var self = this;
+      let self = this;
 
       setTimeout(() => {
 
-        var msg = null,
+        let msg = null,
           validate = function(m, attrs) {
             if ('default_validate' in m && typeof(m.default_validate) == 'function') {
               msg = m.default_validate();
@@ -728,13 +726,13 @@ define([
 
         let collection = self.collection || obj_hand;
         if(collection) {
-          var collection_selector = collection.attrName || collection.name;
+          let collection_selector = collection.attrName || collection.name;
           let activeTab = $('.show.active div.'+collection_selector);
           $(activeTab).find('.error-in-grid').removeClass('error-in-grid');
 
           model_collection_exit : if (collection instanceof Backbone.Collection) {
 
-            for (var cid in collection.models) {
+            for (let cid in collection.models) {
               let model = collection.models[cid];
 
               for(let mod_obj of model.objects) {
@@ -764,7 +762,7 @@ define([
     },
 
     onChildChanged: function(obj) {
-      var self = this;
+      let self = this;
 
       if (self.trackChanges && self.collection) {
         (self.collection).trigger('change', self);
@@ -773,7 +771,7 @@ define([
     },
 
     stopSession: function() {
-      var self = this;
+      let self = this;
 
       if (self.trackChanges) {
         self.off('pgadmin-session:model:invalid', self.onChildInvalid);
@@ -789,7 +787,7 @@ define([
       self.origSessAttrs = {};
 
       _.each(self.objects, function(o) {
-        var obj = self.get(o);
+        let obj = self.get(o);
 
         if (_.isUndefined(obj) || _.isNull(obj)) {
           return;
@@ -806,9 +804,9 @@ define([
       self.trigger('pgadmin-session:stop');
     },
     default_validate: function() {
-      var msg, field, value, type;
+      let msg, field, value, type;
 
-      for (var i = 0, keys = _.keys(this.attributes), l = keys.length; i < l; i++) {
+      for (let i = 0, keys = _.keys(this.attributes), l = keys.length; i < l; i++) {
 
         value = this.attributes[keys[i]];
         field = this.fieldData[keys[i]];
@@ -849,7 +847,7 @@ define([
     },
 
     check_min_max: function(value, field) {
-      var label = field.label,
+      let label = field.label,
         min_value = field.min,
         max_value = field.max;
 
@@ -861,15 +859,13 @@ define([
       return null;
     },
     number_validate: function(value, field) {
-      var pattern = new RegExp('^-?[0-9]+(\.?[0-9]*)?$');
-      if (!pattern.test(value)) {
+      if (!/^-?\d+(\.?\d*)$/.test(value)) {
         return pgadminUtils.sprintf(pgAdmin.Browser.messages.MUST_BE_NUM, field.label);
       }
       return this.check_min_max(value, field);
     },
     integer_validate: function(value, field) {
-      var pattern = new RegExp('^-?[0-9]*$');
-      if (!pattern.test(value)) {
+      if (!/^-?\d*$/.test(value)) {
         return pgadminUtils.sprintf(pgAdmin.Browser.messages.MUST_BE_INT, field.label);
       }
       return this.check_min_max(value, field);
@@ -879,7 +875,7 @@ define([
   pgBrowser.DataCollection = Backbone.Collection.extend({
     // Model collection
     initialize: function(attributes, options) {
-      var self = this;
+      let self = this;
 
       options = options || {};
       /*
@@ -914,7 +910,7 @@ define([
       return self;
     },
     startNewSession: function() {
-      var self = this,
+      let self = this,
         msg;
 
       if (self.trackChanges) {
@@ -960,7 +956,7 @@ define([
       self.on('pgadmin-session:model:valid', self.onModelValid);
     },
     onModelInvalid: function(msg, m) {
-      var self = this,
+      let self = this,
         invalidModels = self.sessAttrs['invalid'];
 
       if (self.trackChanges) {
@@ -978,12 +974,12 @@ define([
       return true;
     },
     onModelValid: function(m) {
-      var self = this,
+      let self = this,
         invalidModels = self.sessAttrs['invalid'];
 
       if (self.trackChanges) {
         // Now check uniqueness of current model with other models.
-        var isUnique = self.checkDuplicateWithModel(m);
+        let isUnique = self.checkDuplicateWithModel(m);
 
         // If unique then find the object the invalid list, if found remove it from the list
         // and inform the parent that - I am a valid object now.
@@ -1000,7 +996,7 @@ define([
       return true;
     },
     stopSession: function() {
-      var self = this;
+      let self = this;
 
       self.trackChanges = false;
       self.sessAttrs = {
@@ -1038,13 +1034,13 @@ define([
      * }
      */
     toJSON: function(session) {
-      var self = this;
-      session = (typeof(session) != 'undefined' && session == true);
+      let self = this;
+      session = (typeof(session) != 'undefined' && session);
 
       if (!session) {
         return Backbone.Collection.prototype.toJSON.call(self);
       } else {
-        var res = {};
+        let res = {};
 
         res['added'] = [];
         _.each(this.sessAttrs['added'], function(o) {
@@ -1088,7 +1084,7 @@ define([
       Backbone.Collection.prototype.reset.apply(this, arguments);
     },
     objFindInSession: function(m, type) {
-      var hasPrimaryKey = m.primary_key &&
+      let hasPrimaryKey = m.primary_key &&
         typeof(m.primary_key) == 'function',
         key = hasPrimaryKey ? m.primary_key() : m.cid,
         comparator = hasPrimaryKey ? function(o) {
@@ -1101,14 +1097,14 @@ define([
     },
     onModelAdd: function(obj) {
       if (this.trackChanges) {
-        var self = this,
+        let self = this,
           msg,
           idx = self.objFindInSession(obj, 'deleted');
 
         // Hmm.. - it was originally deleted from this collection, we should
         // remove it from the 'deleted' list.
         if (idx >= 0) {
-          var origObj = self.sessAttrs['deleted'][idx];
+          let origObj = self.sessAttrs['deleted'][idx];
 
           obj.origSessAttrs = _.clone(origObj.origSessAttrs);
           obj.attributes = _.extend(obj.attributes, origObj.attributes);
@@ -1174,7 +1170,7 @@ define([
          */
         obj.errorModel.clear();
 
-        var self = this,
+        let self = this,
           invalidModels = self.sessAttrs['invalid'],
           copy = _.clone(obj),
           idx = self.objFindInSession(obj, 'added');
@@ -1224,12 +1220,12 @@ define([
       return true;
     },
     triggerValidationEvent: function() {
-      var self = this,
+      let self = this,
         msg = null,
         invalidModels = self.sessAttrs['invalid'],
         validModels = [];
 
-      for (var key in invalidModels) {
+      for (let key in invalidModels) {
         msg = invalidModels[key];
         if (msg) {
           break;
@@ -1242,7 +1238,7 @@ define([
       }
 
       // Let's remove the un
-      for (key in validModels) {
+      for (let key in validModels) {
         delete invalidModels[validModels[key]];
       }
 
@@ -1261,10 +1257,10 @@ define([
       }
     },
     onModelChange: function(obj) {
-      var self = this;
+      let self = this;
 
       if (this.trackChanges && obj instanceof pgBrowser.Node.Model) {
-        var idx = self.objFindInSession(obj, 'added');
+        let idx = self.objFindInSession(obj, 'added');
 
         // It was newly added model, we don't need to add into the changed
         // list.
@@ -1310,7 +1306,7 @@ define([
         return true;
       }
 
-      var self = this,
+      let self = this,
         condition = {},
         previous_condition = {};
 
@@ -1326,21 +1322,21 @@ define([
       // Reset previously changed values.
       model._previous_key_values = {};
 
-      var old_conflicting_models = self.where(previous_condition);
+      let old_conflicting_models = self.where(previous_condition);
 
       if (old_conflicting_models.length == 1) {
-        var m = old_conflicting_models[0];
+        let m = old_conflicting_models[0];
         self.clearInvalidSessionIfModelValid(m);
       }
 
-      var new_conflicting_models = self.where(condition);
+      let new_conflicting_models = self.where(condition);
       if (new_conflicting_models.length == 0) {
         self.clearInvalidSessionIfModelValid(model);
       } else if (new_conflicting_models.length == 1) {
         self.clearInvalidSessionIfModelValid(model);
         self.clearInvalidSessionIfModelValid(new_conflicting_models[0]);
       } else {
-        var msg = 'Duplicate rows.';
+        let msg = 'Duplicate rows.';
         setTimeout(function() {
           _.each(new_conflicting_models, function(local_model) {
             self.trigger(
@@ -1357,7 +1353,7 @@ define([
       return true;
     },
     clearInvalidSessionIfModelValid: function(m) {
-      var errors = m.errorModel.attributes,
+      let errors = m.errorModel.attributes,
         invalidModels = this.sessAttrs['invalid'];
 
       m.trigger('pgadmin-session:model:unique', m);

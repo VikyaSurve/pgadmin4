@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////
+//
+// pgAdmin 4 - PostgreSQL Tools
+//
+// Copyright (C) 2013 - 2022, The pgAdmin Development Team
+// This software is released under the PostgreSQL Licence
+//
+//////////////////////////////////////////////////////////////
 import gettext from 'sources/gettext';
 import BaseUISchema from 'sources/SchemaView/base_schema.ui';
 import _ from 'lodash';
@@ -30,10 +38,7 @@ export default class UniqueConstraintSchema extends BaseUISchema {
   }
 
   get inTable() {
-    if(this.top && this.top instanceof TableSchema) {
-      return true;
-    }
-    return false;
+    return this.top && this.top instanceof TableSchema;
   }
 
   changeColumnOptions(columns) {
@@ -57,10 +62,7 @@ export default class UniqueConstraintSchema extends BaseUISchema {
       id: 'comment', label: gettext('Comment'), cell: 'multiline',
       type: 'multiline', mode: ['properties', 'create', 'edit'],
       deps:['name'], disabled: (state)=>{
-        if(isEmptyString(state.name)){
-          return true;
-        }
-        return false;
+        return isEmptyString(state.name);
       }, depChange: (state)=>{
         if(isEmptyString(state.name)){
           return {comment: ''};
@@ -150,12 +152,9 @@ export default class UniqueConstraintSchema extends BaseUISchema {
       mode: ['properties', 'create', 'edit'],
       visible: function() {
         /* In table properties, nodeInfo is not available */
-        if(!_.isUndefined(this.nodeInfo) && !_.isUndefined(this.nodeInfo.server)
+        return (!_.isUndefined(this.nodeInfo) && !_.isUndefined(this.nodeInfo.server)
           && !_.isUndefined(this.nodeInfo.server.version) &&
-            this.nodeInfo.server.version >= 110000)
-          return true;
-
-        return false;
+            this.nodeInfo.server.version >= 110000);
       },
       deps: ['index'],
       readonly: function(state) {

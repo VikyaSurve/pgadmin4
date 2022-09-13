@@ -25,7 +25,7 @@ import { QuerySources } from './QueryHistory';
 import { getBrowser } from '../../../../../../static/js/utils';
 import CopyData from '../QueryToolDataGrid/CopyData';
 import moment from 'moment';
-import ConfirmSaveContent from '../dialogs/ConfirmSaveContent';
+import ConfirmSaveContent from '../../../../../../static/js/Dialogs/ConfirmSaveContent';
 import { makeStyles } from '@material-ui/styles';
 import EmptyPanelMessage from '../../../../../../static/js/components/EmptyPanelMessage';
 import { GraphVisualiser } from './GraphVisualiser';
@@ -929,7 +929,7 @@ export function ResultSet() {
     eventBus.fireEvent(QUERY_TOOL_EVENTS.RESET_GRAPH_VISUALISER, columns);
   }, [columns]);
 
-  const fetchMoreRows = async (all=false, callback)=>{
+  const fetchMoreRows = async (all=false, callback=undefined)=>{
     if(queryData.has_more_rows) {
       setIsLoadingMore(true);
       const res = await rsu.current.getMoreRows(all);
@@ -1065,7 +1065,7 @@ export function ResultSet() {
             return deletedKeys.indexOf(row[rsu.current.clientPK]) == -1;
           });
         });
-        setColumns(columns);
+        setColumns((prev)=>prev);
       }
       dispatchDataChange({type: 'reset'});
       setSelectedRows(new Set());

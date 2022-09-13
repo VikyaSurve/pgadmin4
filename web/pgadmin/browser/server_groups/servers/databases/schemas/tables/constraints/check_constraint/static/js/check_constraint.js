@@ -9,13 +9,14 @@
 
 import CheckConstraintSchema from './check_constraint.ui';
 import Notify from '../../../../../../../../../../static/js/helpers/Notifier';
+import _ from 'lodash';
 
 // Check Constraint Module: Node
 define('pgadmin.node.check_constraint', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
+  'sources/gettext', 'sources/url_for', 'jquery',
   'sources/pgadmin', 'pgadmin.browser',
   'pgadmin.node.schema.dir/schema_child_tree_node', 'pgadmin.browser.collection',
-], function(gettext, url_for, $, _, pgAdmin, pgBrowser, schemaChildTreeNode) {
+], function(gettext, url_for, $, pgAdmin, pgBrowser, schemaChildTreeNode) {
 
   // Check Constraint Node
   if (!pgBrowser.Nodes['check_constraint']) {
@@ -61,14 +62,14 @@ define('pgadmin.node.check_constraint', [
       },
       callbacks: {
         validate_check_constraint: function(args) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
             d = i  ? t.itemData(i) : undefined;
 
           if (d) {
-            var data = d;
+            let data = d;
             $.ajax({
               url: obj.generate_url(i, 'validate', d, true),
               type:'GET',
@@ -99,10 +100,10 @@ define('pgadmin.node.check_constraint', [
       // Below function will enable right click menu for creating check constraint.
       canCreate: function(itemData, item, data) {
         // If check is false then , we will allow create menu
-        if (data && data.check == false)
+        if (data && !data.check)
           return true;
 
-        var t = pgBrowser.tree, i = item, d = itemData, parents = [];
+        let t = pgBrowser.tree, i = item, d = itemData, parents = [];
         // To iterate over tree to check parent node
         while (i) {
           // If it is schema then allow user to c reate table

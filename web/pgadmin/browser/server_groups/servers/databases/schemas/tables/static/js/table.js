@@ -8,19 +8,18 @@
 
 import { getNodeTableSchema } from './table.ui';
 import Notify from '../../../../../../../../static/js/helpers/Notifier';
+import _ from 'lodash';
 
 define('pgadmin.node.table', [
   'pgadmin.tables.js/enable_disable_triggers',
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
+  'sources/gettext', 'sources/url_for', 'jquery',
   'sources/pgadmin', 'pgadmin.browser',
-  'pgadmin.alertifyjs', 'pgadmin.backform', 'pgadmin.backgrid',
   'pgadmin.node.schema.dir/child','pgadmin.node.schema.dir/schema_child_tree_node',
   'pgadmin.browser.collection', 'pgadmin.node.column',
   'pgadmin.node.constraints',
 ], function(
   tableFunctions,
-  gettext, url_for, $, _, pgAdmin, pgBrowser, Alertify, Backform, Backgrid,
-  SchemaChild, SchemaChildTreeNode
+  gettext, url_for, $, pgAdmin, pgBrowser, SchemaChild, SchemaChildTreeNode
 ) {
 
   if (!pgBrowser.Nodes['coll-table']) {
@@ -157,20 +156,20 @@ define('pgadmin.node.table', [
         },
         /* Truncate table */
         truncate_table: function(args) {
-          var params = {'cascade': false };
+          let params = {'cascade': false };
           this.callbacks.truncate.apply(this, [args, params]);
         },
         /* Truncate table with cascade */
         truncate_table_cascade: function(args) {
-          var params = {'cascade': true };
+          let params = {'cascade': true };
           this.callbacks.truncate.apply(this, [args, params]);
         },
         truncate_table_identity: function(args) {
-          var params = {'identity': true };
+          let params = {'identity': true };
           this.callbacks.truncate.apply(this, [args, params]);
         },
         truncate: function(args, params) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -183,7 +182,7 @@ define('pgadmin.node.table', [
             gettext('Truncate Table'),
             gettext('Are you sure you want to truncate table %s?', d.label),
             function () {
-              var data = d;
+              let data = d;
               $.ajax({
                 url: obj.generate_url(i, 'truncate' , d, true),
                 type:'PUT',
@@ -216,7 +215,7 @@ define('pgadmin.node.table', [
           );
         },
         reset_table_stats: function(args) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -229,7 +228,7 @@ define('pgadmin.node.table', [
             gettext('Reset statistics'),
             gettext('Are you sure you want to reset the statistics for table "%s"?', d._label),
             function () {
-              var data = d;
+              let data = d;
               $.ajax({
                 url: obj.generate_url(i, 'reset' , d, true),
                 type:'DELETE',
@@ -258,7 +257,7 @@ define('pgadmin.node.table', [
           );
         },
         count_table_rows: function(args) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -317,9 +316,7 @@ define('pgadmin.node.table', [
           type: 'switch', mode: ['properties', 'create', 'edit'],
           visible: 'isVersionGreaterThan96',
           readonly: function(m) {
-            if (!m.isNew())
-              return true;
-            return false;
+            return !m.isNew();
           },
         },{
           id: 'description', label: gettext('Comment'), type: 'multiline',
@@ -337,11 +334,7 @@ define('pgadmin.node.table', [
         },
         // We will disable everything if we are under catalog node
         inSchema: function() {
-          if(this.node_info &&  'catalog' in this.node_info)
-          {
-            return true;
-          }
-          return false;
+          return this.node_info && 'catalog' in this.node_info;
         },
       }),
       // Check to whether table has disable trigger(s)
@@ -355,18 +348,18 @@ define('pgadmin.node.table', [
           this.canCreate.apply(this, [itemData, item, data]);
       },
       onTableUpdated: function(_node, _oldNodeData, _newNodeData) {
-        var key, childIDs;
+        let key, childIDs;
         if (
           _newNodeData.is_partitioned &&
             'affected_partitions' in _newNodeData
         ) {
-          var partitions = _newNodeData.affected_partitions,
+          let partitions = _newNodeData.affected_partitions,
             newPartitionsIDs = [],
             insertChildTreeNodes = [],
             insertChildrenNodes = function() {
               if (!insertChildTreeNodes.length)
                 return;
-              var option = insertChildTreeNodes.pop();
+              let option = insertChildTreeNodes.pop();
               pgBrowser.addChildTreeNodes(
                 option.treeHierarchy, option.parent, option.type,
                 option.childrenIDs, insertChildrenNodes
@@ -384,7 +377,7 @@ define('pgadmin.node.table', [
             schemaNode = pgBrowser.findParentTreeNodeByType(
               _node, 'schema'
             );
-            var detachedBySchema = _.groupBy(
+            let detachedBySchema = _.groupBy(
               partitions.detached,
               function(_d) { return parseInt(_d.schema_id); }
             );
@@ -398,7 +391,7 @@ define('pgadmin.node.table', [
                   function(_d) { return parseInt(_d.oid); }
                 );
 
-                var tablesCollNode = pgBrowser.findChildCollectionTreeNode(
+                let tablesCollNode = pgBrowser.findChildCollectionTreeNode(
                   schemaNode, 'coll-table'
                 );
 
@@ -421,7 +414,7 @@ define('pgadmin.node.table', [
             schemaNode = pgBrowser.findParentTreeNodeByType(
               _node, 'schema'
             );
-            var attachedBySchema = _.groupBy(
+            let attachedBySchema = _.groupBy(
               partitions.attached,
               function(_d) { return parseInt(_d.schema_id); }
             );
@@ -450,7 +443,7 @@ define('pgadmin.node.table', [
           }
 
           if (newPartitionsIDs.length) {
-            var partitionsCollNode = pgBrowser.findChildCollectionTreeNode(
+            let partitionsCollNode = pgBrowser.findChildCollectionTreeNode(
               _node, 'coll-partition'
             );
 

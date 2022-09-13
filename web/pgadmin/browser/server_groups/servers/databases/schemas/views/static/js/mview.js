@@ -12,15 +12,15 @@ import { getNodeListByName } from '../../../../../../../static/js/node_ajax';
 import { getNodePrivilegeRoleSchema } from '../../../../../static/js/privilege.ui';
 import { getNodeVacuumSettingsSchema } from '../../../../../static/js/vacuum.ui';
 import Notify from '../../../../../../../../static/js/helpers/Notifier';
+import _ from 'lodash';
 
 define('pgadmin.node.mview', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
-  'sources/pgadmin', 'pgadmin.alertifyjs', 'pgadmin.browser',
-  'pgadmin.backform', 'pgadmin.node.schema.dir/child',
+  'sources/gettext', 'sources/url_for', 'jquery',
+  'sources/pgadmin', 'pgadmin.browser',
+  'pgadmin.node.schema.dir/child',
   'pgadmin.node.schema.dir/schema_child_tree_node', 'sources/utils',
-  'pgadmin.browser.server.privilege',
 ], function(
-  gettext, url_for, $, _, pgAdmin, Alertify, pgBrowser, Backform,
+  gettext, url_for, $, pgAdmin, pgBrowser,
   schemaChild, schemaChildTreeNode, commonUtils
 ) {
 
@@ -148,7 +148,7 @@ define('pgadmin.node.mview', [
       },
 
       refresh_mview: function(args) {
-        var input = args || {},
+        let input = args || {},
           obj = this,
           t = pgBrowser.tree,
           i = input.item || t.selected(),
@@ -160,7 +160,7 @@ define('pgadmin.node.mview', [
 
         let j = i;
         while (j) {
-          var node_data = pgBrowser.tree.itemData(j);
+          let node_data = pgBrowser.tree.itemData(j);
           if (node_data._type == 'server') {
             server_data = node_data;
             break;
@@ -178,7 +178,7 @@ define('pgadmin.node.mview', [
           return;
         }
 
-        if (!commonUtils.hasBinariesConfiguration(pgBrowser, server_data, Alertify)) {
+        if (!commonUtils.hasBinariesConfiguration(pgBrowser, server_data)) {
           return;
         }
 
@@ -226,7 +226,7 @@ define('pgadmin.node.mview', [
       },
 
       is_version_supported: function(data, item) {
-        var t = pgAdmin.Browser.tree,
+        let t = pgAdmin.Browser.tree,
           i = item || t.selected(),
           info = t && t.getTreeNodeHierarchy(i),
           version = _.isUndefined(info) ? 0 : info.server.version;

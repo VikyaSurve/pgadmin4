@@ -13,14 +13,13 @@ import { getNodeVariableSchema } from '../../../static/js/variable.ui';
 import DatabaseSchema from './database.ui';
 import Notify from '../../../../../../static/js/helpers/Notifier';
 import { showServerPassword } from '../../../../../../static/js/Dialogs/index';
+import _ from 'lodash';
 
 define('pgadmin.node.database', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
-  'sources/utils', 'sources/pgadmin', 'pgadmin.browser.utils',
-  'pgadmin.alertifyjs', 'pgadmin.backform',
+  'sources/gettext', 'sources/url_for', 'jquery',
+  'sources/pgadmin', 'pgadmin.browser.utils',
   'pgadmin.authenticate.kerberos', 'pgadmin.browser.collection',
-  'pgadmin.browser.server.privilege', 'pgadmin.browser.server.variable',
-], function(gettext, url_for, $, _, pgadminUtils, pgAdmin, pgBrowser, Alertify, Backform, Kerberos) {
+], function(gettext, url_for, $, pgAdmin, pgBrowser, Kerberos) {
 
   if (!pgBrowser.Nodes['coll-database']) {
     pgBrowser.Nodes['coll-database'] =
@@ -108,38 +107,34 @@ define('pgadmin.node.database', [
         );
       },
       can_create_database: function(node, item) {
-        var treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
+        let treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
           server = treeData['server'];
 
         return server.connected && server.user.can_create_db;
       },
       canCreate: function(itemData, item) {
-        var treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
+        let treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
           server = treeData['server'];
 
         // If server is less than 10 then do not allow 'create' menu
-        if (server && server.version < 100000)
-          return false;
-
-        // by default we want to allow create menu
-        return true;
+        return server && server.version >= 100000;
       },
 
       is_not_connected: function(node) {
-        return (node && node.connected != true && node.allowConn == true);
+        return (node && !node.connected && node.allowConn);
       },
       is_connected: function(node) {
-        return (node && node.connected == true && node.canDisconn == true);
+        return (node && node.connected && node.canDisconn);
       },
       is_psql_enabled: function(node) {
-        return (node && node.connected == true) && pgAdmin['enable_psql'];
+        return (node && node.connected) && pgAdmin['enable_psql'];
       },
       is_conn_allow: function(node) {
-        return (node && node.allowConn == true);
+        return (node && node.allowConn);
       },
       connection_lost: function(i, resp, server_connected) {
         if (pgBrowser.tree) {
-          var t = pgBrowser.tree,
+          let t = pgBrowser.tree,
             d = i && t.itemData(i),
             self = this;
 
@@ -153,7 +148,7 @@ define('pgadmin.node.database', [
             if (_.isUndefined(d.is_connecting) || !d.is_connecting) {
               d.is_connecting = true;
 
-              var disconnect = function(_i, _d) {
+              let disconnect = function(_i, _d) {
                 if (_d._id == this._id) {
                   d.is_connecting = false;
                   pgBrowser.Events.off(
@@ -187,7 +182,7 @@ define('pgadmin.node.database', [
                   d.is_connecting = false;
                   t.unload(i);
                   t.setInode(i);
-                  var dbIcon = d.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
+                  let dbIcon = d.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
                   t.addIcon(i, {icon: dbIcon});
                   pgBrowser.Events.trigger(
                     'pgadmin:database:connect:cancelled', i, d, self
@@ -200,7 +195,7 @@ define('pgadmin.node.database', [
       callbacks: {
         /* Connect the database */
         connect_database: function(args){
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -218,7 +213,7 @@ define('pgadmin.node.database', [
         },
         /* Disconnect the database */
         disconnect_database: function(args) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -229,14 +224,14 @@ define('pgadmin.node.database', [
               gettext('Disconnect from database'),
               gettext('Are you sure you want to disconnect from database - %s?', d.label),
               function() {
-                var data = d;
+                let data = d;
                 $.ajax({
                   url: obj.generate_url(i, 'connect', d, true),
                   type:'DELETE',
                 })
                   .done(function(res) {
                     if (res.success == 1) {
-                      var prv_i = t.parent(i);
+                      let prv_i = t.parent(i);
                       if(res.data.info_prefix) {
                         res.info = `${_.escape(res.data.info_prefix)} - ${res.info}`;
                       }
@@ -275,11 +270,11 @@ define('pgadmin.node.database', [
 
         /* Generate the ERD */
         generate_erd: function(args) {
-          var input = args || {},
+          let input = args || {},
             t = pgBrowser.tree,
             i = input.item || t.selected(),
             d = i ? t.itemData(i) : undefined;
-          pgBrowser.erd.showErdTool(d, i, true);
+          pgAdmin.Tools.ERD.showErdTool(d, i, true);
         },
 
         /* Connect the database (if not connected), before opening this node */
@@ -311,7 +306,7 @@ define('pgadmin.node.database', [
         },
 
         refresh: function(cmd, i) {
-          var t = pgBrowser.tree,
+          let t = pgBrowser.tree,
             item = i || t.selected(),
             d = t.itemData(item);
 
@@ -367,18 +362,18 @@ define('pgadmin.node.database', [
         if (args && 'node_info' in args) {
           // If node_info is not present in current object then it might in its
           // parent in case if we used sub node control
-          var node_info = args.node_info || args.handler.node_info;
+          let node_info = args.node_info || args.handler.node_info;
           return 'catalog' in node_info ? false : true;
         }
         return true;
       },
     };
 
-    var connect_to_database = function(obj, data, tree, item, _wasConnected) {
+    let connect_to_database = function(obj, data, tree, item, _wasConnected) {
         connect(obj, data, tree, item, _wasConnected);
       },
       connect = function (obj, data, tree, item, _wasConnected) {
-        var wasConnected = _wasConnected || data.connected,
+        let wasConnected = _wasConnected || data.connected,
           onFailure = function(
             xhr, status, error, _model, _data, _tree, _item, _status
           ) {
@@ -392,7 +387,7 @@ define('pgadmin.node.database', [
                 },
                 function(fun_error) {
                   tree.setInode(_item);
-                  var dbIcon = data.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
+                  let dbIcon = data.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
                   tree.addIcon(_item, {icon: dbIcon});
                   Notify.pgNotifier(fun_error, xhr, gettext('Connect  to database.'));
                 }
@@ -400,7 +395,7 @@ define('pgadmin.node.database', [
             } else {
               if (!_status) {
                 tree.setInode(_item);
-                var dbIcon = data.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
+                let dbIcon = data.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
                 tree.addIcon(_item, {icon: dbIcon});
               }
 
@@ -430,7 +425,7 @@ define('pgadmin.node.database', [
               if (typeof res.data.icon == 'string') {
                 _tree.removeIcon(_item);
                 _data.icon = res.data.icon;
-                var dbIcon = _data.isTemplate ? 'icon-database-template-connected':_data.icon;
+                let dbIcon = _data.isTemplate ? 'icon-database-template-connected':_data.icon;
                 _tree.addIcon(_item, {icon: dbIcon});
               }
               if(res.data.already_connected) {
@@ -462,11 +457,11 @@ define('pgadmin.node.database', [
           },
           onCancel = function(_tree, _item, _data) {
             _data.is_connecting = false;
-            var server = _tree.parent(_item);
+            let server = _tree.parent(_item);
             _tree.unload(_item);
             _tree.setInode(_item);
             _tree.removeIcon(_item);
-            var dbIcon = data.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
+            let dbIcon = data.isTemplate ? 'icon-database-template-not-connected':'icon-database-not-connected';
             _tree.addIcon(_item, {icon: dbIcon});
             obj.trigger('connect:cancelled', obj, _item, _data);
             pgBrowser.Events.trigger(

@@ -709,6 +709,7 @@ const customReactSelectStyles = (theme, readonly) => ({
     ...provided,
     color: 'inherit',
     fontSize: '0.85em',
+    fontWeight: 'bold',
     textTransform: 'none',
   }),
   menu: (provided) => ({
@@ -843,7 +844,7 @@ export const InputSelect = forwardRef(({
   const theme = useTheme();
 
 
-  /* React will always take options var as changed parameter. So,
+  /* React will always take options let as changed parameter. So,
   We cannot run the below effect with options dependency as it will keep on
   loading the options. optionsReloadBasis is helpful to avoid repeated
   options load. If optionsReloadBasis value changes, then options will be loaded again.

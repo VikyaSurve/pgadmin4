@@ -10,7 +10,7 @@ import gettext from '../../../../static/js/gettext';
 import url_for from '../../../../static/js/url_for';
 import {getDatabaseLabel, generateTitle} from './sqleditor_title';
 import BaseUISchema from 'sources/SchemaView/base_schema.ui';
-import _ from 'underscore';
+import _ from 'lodash';
 import Notify from '../../../../static/js/helpers/Notifier';
 import { isEmptyString } from 'sources/validators';
 import { getUtilityView } from '../../../../browser/static/js/utility_view';
@@ -141,7 +141,7 @@ function generateUrl(trans_id, connectionData, nodeData, parentData) {
 
 function generateFilterValidateUrl(nodeData, parentData) {
   // Create url to validate the SQL filter
-  var url_params = {
+  let url_params = {
     'sid': parentData.server._id,
     'did': parentData.database._id,
     'obj_id': nodeData._id,
@@ -157,12 +157,12 @@ function showFilterDialog(pgBrowser, treeNodeInfo, queryToolMod, transId,
 
   // Register dialog panel
   pgBrowser.Node.registerUtilityPanel();
-  var panel = pgBrowser.Node.addUtilityPanel(pgBrowser.stdW.md),
+  let panel = pgBrowser.Node.addUtilityPanel(pgBrowser.stdW.md),
     j = panel.$container.find('.obj_properties').first();
   panel.title(gettext('Data Filter - %s', queryToolTitle));
   panel.focus();
 
-  var helpUrl = url_for('help.static', {'filename': 'viewdata_filter.html'});
+  let helpUrl = url_for('help.static', {'filename': 'viewdata_filter.html'});
 
   let okCallback = function() {
     queryToolMod.launch(transId, gridUrl, false, queryToolTitle, null, schema._sessData.filter_sql);
@@ -182,7 +182,7 @@ function hasSchemaOrCatalogOrViewInformation(parentData) {
 }
 
 export function generateViewDataTitle(pgBrowser, treeIdentifier, custom_title=null, backend_entity=null) {
-  var preferences = pgBrowser.get_preferences_for_module('browser');
+  let preferences = pgBrowser.get_preferences_for_module('browser');
   const parentData = pgBrowser.tree.getTreeNodeHierarchy(
     treeIdentifier
   );
@@ -191,7 +191,7 @@ export function generateViewDataTitle(pgBrowser, treeIdentifier, custom_title=nu
   const db_label = !_.isUndefined(backend_entity) && backend_entity != null && backend_entity.hasOwnProperty('db_name') ? backend_entity['db_name'] : getDatabaseLabel(parentData);
   const node = pgBrowser.tree.findNodeByDomElement(treeIdentifier);
 
-  var dtg_title_placeholder = '';
+  let dtg_title_placeholder = '';
   if(custom_title) {
     dtg_title_placeholder = custom_title;
   } else {
@@ -199,7 +199,7 @@ export function generateViewDataTitle(pgBrowser, treeIdentifier, custom_title=nu
   }
 
 
-  var title_data = {
+  let title_data = {
     'database': db_label,
     'username': parentData.server.user.name,
     'server': parentData.server.label,

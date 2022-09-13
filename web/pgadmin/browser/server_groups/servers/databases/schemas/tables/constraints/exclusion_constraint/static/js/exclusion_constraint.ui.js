@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////
+//
+// pgAdmin 4 - PostgreSQL Tools
+//
+// Copyright (C) 2013 - 2022, The pgAdmin Development Team
+// This software is released under the PostgreSQL Licence
+//
+//////////////////////////////////////////////////////////////
 import gettext from 'sources/gettext';
 import BaseUISchema from 'sources/SchemaView/base_schema.ui';
 import _ from 'lodash';
@@ -211,10 +219,7 @@ export default class ExclusionConstraintSchema extends BaseUISchema {
   }
 
   get inTable() {
-    if(this.top && this.top instanceof TableSchema) {
-      return true;
-    }
-    return false;
+    return this.top && this.top instanceof TableSchema;
   }
 
   initialise(data) {
@@ -254,10 +259,7 @@ export default class ExclusionConstraintSchema extends BaseUISchema {
       id: 'comment', label: gettext('Comment'), cell: 'text',
       type: 'multiline', mode: ['properties', 'create', 'edit'],
       deps:['name'], disabled:function(state) {
-        if(isEmptyString(state.name)) {
-          return true;
-        }
-        return false;
+        return isEmptyString(state.name);
       }, depChange: (state)=>{
         if(isEmptyString(state.name)) {
           return {comment: ''};

@@ -11,10 +11,10 @@ import CastSchema from './cast.ui';
 import getApiInstance from '../../../../../../../static/js/api_instance';
 
 define('pgadmin.node.cast', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
+  'sources/gettext', 'sources/url_for',
   'sources/pgadmin', 'pgadmin.browser',
-  'pgadmin.alertifyjs', 'pgadmin.backform', 'pgadmin.browser.collection',
-], function(gettext, url_for, $, _, pgAdmin, pgBrowser) {
+  'pgadmin.browser.collection',
+], function(gettext, url_for, pgAdmin, pgBrowser) {
   // Extend the collection class for cast
   if (!pgBrowser.Nodes['coll-cast']) {
     pgAdmin.Browser.Nodes['coll-cast'] =
@@ -76,12 +76,12 @@ define('pgadmin.node.cast', [
             return new Promise((resolve, reject)=>{
               const api = getApiInstance();
 
-              var _url = pgBrowser.Nodes['cast'].generate_url.apply(
+              let _url = pgBrowser.Nodes['cast'].generate_url.apply(
                 pgBrowser.Nodes['cast'], [
                   null, 'get_functions', itemNodeData, false,
                   treeNodeInfo,
                 ]);
-              var data = {'srctyp' : srcTyp, 'trgtyp' : trgtyp};
+              let data = {'srctyp' : srcTyp, 'trgtyp' : trgtyp};
 
               if(srcTyp != undefined && srcTyp != '' &&
                  trgtyp != undefined && trgtyp != ''){

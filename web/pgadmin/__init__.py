@@ -222,7 +222,7 @@ def create_app(app_name=None):
 
         config.SECURITY_RECOVERABLE = True
         config.SECURITY_CHANGEABLE = True
-        # Now we'll open change password page in alertify dialog
+        # Now we'll open change password page in dialog
         # we don't want it to redirect to main page after password
         # change operation so we will open the same password change page again.
         config.SECURITY_POST_CHANGE_VIEW = 'browser.change_password'
@@ -444,7 +444,7 @@ def create_app(app_name=None):
     # Don't bother paths when running in cli mode
     if not cli_mode:
         import pgadmin.utils.paths as paths
-        paths.init_app(app)
+        paths.init_app()
 
     # Setup Flask-Security
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -578,7 +578,7 @@ def create_app(app_name=None):
                          maintenance_db='postgres',
                          username=superuser,
                          ssl_mode='prefer',
-                         comment=svr_comment,
+                         comment=comment,
                          discovery_id=discovery_id)
 
             db.session.add(svr)
@@ -700,7 +700,7 @@ def create_app(app_name=None):
 
         for mdl in current_app.logout_hooks:
             try:
-                mdl.on_logout(user)
+                mdl.on_logout()
             except Exception as e:
                 current_app.logger.exception(e)
 

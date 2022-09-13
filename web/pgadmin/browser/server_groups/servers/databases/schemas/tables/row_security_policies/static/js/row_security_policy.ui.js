@@ -40,14 +40,11 @@ export default class RowSecurityPolicySchema extends BaseUISchema {
   }
 
   disableUsingField(state){
-    if (state.event == 'INSERT'){
-      return true;
-    }
-    return false;
+    return state.event == 'INSERT';
   }
 
   disableWithCheckField(state){
-    var event = state.event;
+    let event = state.event;
     if ((event == 'SELECT') || (event == 'DELETE')){
       state.withcheck = '';
       return true;
@@ -69,10 +66,7 @@ export default class RowSecurityPolicySchema extends BaseUISchema {
       {
         id: 'event', label: gettext('Event'), type: 'select',
         group: gettext('Commands'),disabled: () => {
-          if(obj.isNew()) {
-            return false;
-          }
-          return true;
+          return !obj.isNew();
         },
         controlProps: { allowClear: false },
         options:[
@@ -126,10 +120,7 @@ export default class RowSecurityPolicySchema extends BaseUISchema {
           {label: 'RESTRICTIVE', value: 'RESTRICTIVE'},
         ],
         visible: () => {
-          if(obj.nodeInfo.server.version >= 100000)
-            return true;
-
-          return false;
+          return obj.nodeInfo.server.version >= 100000;
         },
       },
     ];

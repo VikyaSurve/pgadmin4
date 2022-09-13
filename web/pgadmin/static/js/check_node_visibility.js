@@ -6,9 +6,10 @@
 // This software is released under the PostgreSQL Licence
 //
 //////////////////////////////////////////////////////////////////////////
+import _ from 'lodash';
 
-define(['jquery', 'underscore'],
-  function ($, _) {
+define([],
+  function () {
 
     return function (pgBrowser, node_type) {
       if(_.isUndefined(node_type) || _.isNull(node_type)) {
@@ -23,14 +24,14 @@ define(['jquery', 'underscore'],
       }
 
       // Exclude non-applicable nodes
-      var nodes_not_supported = [
+      let nodes_not_supported = [
         'server_group', 'server', 'catalog_object_column',
       ];
       if(_.indexOf(nodes_not_supported, node_type) >= 0) {
         return true;
       }
 
-      var preference = pgBrowser.get_preference('browser', 'show_node_'+node_type);
+      let preference = pgBrowser.get_preference('browser', 'show_node_'+node_type);
 
       if (preference) {
         return preference.value;

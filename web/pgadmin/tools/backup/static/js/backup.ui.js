@@ -181,7 +181,7 @@ export class SaveOptSchema extends BaseUISchema {
       disabled: false,
       group: gettext('Do not save'),
       visible: function() {
-        var serverInfo = _.isUndefined(obj.fieldOptions.nodeInfo) ? undefined : obj.fieldOptions.nodeInfo.server;
+        let serverInfo = _.isUndefined(obj.fieldOptions.nodeInfo) ? undefined : obj.fieldOptions.nodeInfo.server;
 
         return _.isUndefined(serverInfo) ? false : serverInfo.version >= 110000;
       },
@@ -194,9 +194,7 @@ export function getSaveOptSchema(fieldOptions) {
 }
 
 function isVisible () {
-  if (!_.isUndefined(this.backupType) && this.backupType === 'server')
-    return false;
-  return true;
+  return !(!_.isUndefined(this.backupType) && this.backupType === 'server');
 }
 
 export class QueryOptionSchema extends BaseUISchema {
@@ -240,9 +238,7 @@ export class QueryOptionSchema extends BaseUISchema {
       disabled: false,
       group: gettext('Queries'),
       visible: function() {
-        if (!_.isUndefined(obj.backupType) && obj.backupType === 'server')
-          return false;
-        return true;
+        return !(!_.isUndefined(obj.backupType) && obj.backupType === 'server');
       },
     }, {
       id: 'include_drop_database',
@@ -267,7 +263,7 @@ export class QueryOptionSchema extends BaseUISchema {
         if (!_.isUndefined(obj.backupType) && obj.backupType === 'server')
           return false;
 
-        var serverInfo = _.isUndefined(obj.fieldOptions.nodeInfo) ? undefined : obj.fieldOptions.nodeInfo.server;
+        let serverInfo = _.isUndefined(obj.fieldOptions.nodeInfo) ? undefined : obj.fieldOptions.nodeInfo.server;
 
         return _.isUndefined(serverInfo) ? false : serverInfo.version >= 110000;
       },
@@ -349,7 +345,7 @@ export class MiscellaneousSchema extends BaseUISchema {
       deps: ['use_column_inserts', 'use_insert_commands'],
       group: gettext('Miscellaneous'),
       disabled: function(state) {
-        var serverInfo = _.isUndefined(obj.fieldOptions.nodeInfo) ? undefined : obj.fieldOptions.nodeInfo.server;
+        let serverInfo = _.isUndefined(obj.fieldOptions.nodeInfo) ? undefined : obj.fieldOptions.nodeInfo.server;
 
         if (!_.isUndefined(serverInfo) && serverInfo.version >= 120000)
           return true;
@@ -418,7 +414,7 @@ export default class BackupSchema extends BaseUISchema {
   }
 
   get baseFields() {
-    var obj = this;
+    let obj = this;
     return [{
       id: 'file',
       label: gettext('Filename'),
@@ -480,7 +476,7 @@ export default class BackupSchema extends BaseUISchema {
       options: obj.fieldOptions.encoding,
       visible: function() {
         if (!_.isUndefined(obj.backupType) && obj.backupType === 'server') {
-          var dbNode = obj.pgBrowser.serverInfo[obj.treeNodeInfo.server._id];
+          let dbNode = obj.pgBrowser.serverInfo[obj.treeNodeInfo.server._id];
           return _.isUndefined(dbNode) ? false : dbNode.version >= 110000;
         }
         return true;

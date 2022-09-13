@@ -8,12 +8,13 @@
 //////////////////////////////////////////////////////////////
 
 import { getNodeExclusionConstraintSchema } from './exclusion_constraint.ui';
+import _ from 'lodash';
 
 define('pgadmin.node.exclusion_constraint', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore', 'backbone',
+  'sources/gettext', 'sources/url_for',
   'sources/pgadmin', 'pgadmin.browser', 'pgadmin.browser.collection',
 ], function(
-  gettext, url_for, $, _, Backbone, pgAdmin, pgBrowser
+  gettext, url_for, pgAdmin, pgBrowser
 ) {
   // Extend the browser's node class for exclusion constraint node
   if (!pgBrowser.Nodes['exclusion_constraint']) {
@@ -57,10 +58,10 @@ define('pgadmin.node.exclusion_constraint', [
 
       canCreate: function(itemData, item, data) {
         // If check is false then , we will allow create menu
-        if (data && data.check == false)
+        if (data && !data.check)
           return true;
 
-        var t = pgBrowser.tree, i = item, d = itemData, parents = [],
+        let t = pgBrowser.tree, i = item, d = itemData, parents = [],
           immediate_parent_table_found = false,
           is_immediate_parent_table_partitioned = false;
         // To iterate over tree to check parent node

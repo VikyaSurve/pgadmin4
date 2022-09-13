@@ -37,10 +37,11 @@ const useStyles = makeStyles((theme)=>({
   },
   message: {
     marginLeft: '0.5rem',
+    fontSize: '16px',
   }
 }));
 
-export default function Loader({message, style, ...props}) {
+export default function Loader({message, style, autoEllipsis=false, ...props}) {
   const classes = useStyles();
   if(!message) {
     return <></>;
@@ -49,7 +50,7 @@ export default function Loader({message, style, ...props}) {
     <Box className={classes.root} style={style} data-label="loader" {...props}>
       <Box className={classes.loaderRoot}>
         <CircularProgress className={classes.loader} />
-        <Typography className={classes.message}>{message}</Typography>
+        <Typography className={classes.message}>{message}{autoEllipsis ? '...':''}</Typography>
       </Box>
     </Box>
   );
@@ -58,4 +59,5 @@ export default function Loader({message, style, ...props}) {
 Loader.propTypes = {
   message: PropTypes.string,
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  autoEllipsis: PropTypes.bool,
 };

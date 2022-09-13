@@ -106,6 +106,8 @@ export default function(basicSettings) {
       cardHeaderBg: '#fff',
       emptySpaceBg: '#ebeef3',
       textMuted: '#646B82',
+      erdCanvasBg: '#fff',
+      erdGridColor: '#bac1cd',
       explain: {
         sev2: {
           color: '#222222',
@@ -119,6 +121,13 @@ export default function(basicSettings) {
           color: '#FFFFFF',
           bg: '#880000'
         },
+      },
+      schemaDiff: {
+        diffRowColor: '#fff9c4',
+        sourceRowColor: '#ffebee',
+        targetRowColor: '#fbe3bf',
+        diffColorFg: '#222',
+        diffSelectFG: '#222'
       }
     }
   });

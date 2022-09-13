@@ -15,10 +15,10 @@ import Notify from './helpers/Notifier';
 import { hasTrojanSource } from 'anti-trojan-source';
 import convert from 'convert-units';
 
-var wcDocker = window.wcDocker;
+let wcDocker = window.wcDocker;
 
 export function parseShortcutValue(obj) {
-  var shortcut = '';
+  let shortcut = '';
   if (obj.alt) { shortcut += 'alt+'; }
   if (obj.shift) { shortcut += 'shift+'; }
   if (obj.control) { shortcut += 'ctrl+'; }
@@ -89,7 +89,7 @@ export function findAndSetFocus(container) {
     return;
   }
   setTimeout(function() {
-    var first_el = container
+    let first_el = container
       .find('button.fa-plus:first');
 
     /* Adding the tabindex condition makes sure that
@@ -263,7 +263,7 @@ export function getRandomInt(min, max) {
   const intArray = new Uint32Array(1);
   crypto.getRandomValues(intArray);
 
-  var range = max - min + 1;
+  let range = max - min + 1;
   return min + (intArray[0] % range);
 }
 
@@ -303,7 +303,7 @@ export function CSVToArray(strData, strDelimiter, quoteChar){
   quoteChar = quoteChar || '"';
 
   // Create a regular expression to parse the CSV values.
-  var objPattern = new RegExp(
+  let objPattern = new RegExp(
     (
     // Delimiters.
       '(\\' + strDelimiter + '|\\r?\\n|\\r|^)' +
@@ -317,7 +317,7 @@ export function CSVToArray(strData, strDelimiter, quoteChar){
 
   // Create an array to hold our data. Give the array
   // a default empty first row.
-  var arrData = [[]];
+  let arrData = [[]];
 
   // The regex doesn't handle and skips start value if
   // string starts with delimiter
@@ -327,13 +327,13 @@ export function CSVToArray(strData, strDelimiter, quoteChar){
 
   // Create an array to hold our individual pattern
   // matching groups.
-  var arrMatches = null;
+  let arrMatches = null;
 
   // Keep looping over the regular expression matches
   // until we can no longer find a match.
   while ((arrMatches = objPattern.exec( strData ))){
     // Get the delimiter that was found.
-    var strMatchedDelimiter = arrMatches[ 1 ];
+    let strMatchedDelimiter = arrMatches[ 1 ];
 
     // Check to see if the given delimiter has a length
     // (is not the start of string) and if it matches
@@ -345,7 +345,7 @@ export function CSVToArray(strData, strDelimiter, quoteChar){
       arrData.push( [] );
     }
 
-    var strMatchedValue;
+    let strMatchedValue;
 
     // Now that we have our delimiter out of the way,
     // let's check to see which kind of value we
@@ -429,11 +429,11 @@ export function registerDetachEvent(panel){
     });
   });
   panel.on(wcDocker.EVENT.ORDER_CHANGED, function() {
-    var docker = this.docker(this._panel);
-    var dockerPos = docker.$container.offset();
-    var pos = this.$container.offset();
-    var width = this.$container.width();
-    var height = this.$container.height();
+    let docker = this.docker(this._panel);
+    let dockerPos = docker.$container.offset();
+    let pos = this.$container.offset();
+    let width = this.$container.width();
+    let height = this.$container.height();
 
     $((this.$container)[0].ownerDocument).find('.wcIFrameFloating').css('top', pos.top - dockerPos.top);
     $((this.$container)[0].ownerDocument).find('.wcIFrameFloating').css('left', pos.left - dockerPos.left);
@@ -446,7 +446,7 @@ export function registerDetachEvent(panel){
 }
 
 export function getBrowser() {
-  var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+  let ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
   if(/trident/i.test(M[1])) {
     tem=/\brv[ :]+(\d+)/g.exec(ua) || [];
     return {name:'IE', version:(tem[1]||'')};
@@ -522,4 +522,139 @@ export function compareSizeVals(val1, val2) {
   val2 = parseAndConvert(val2);
   if(val1 > val2) return 1;
   return (val1 < val2 ? -1 : 0);
+}
+
+export function calcFontSize(fontSize) {
+  if(fontSize) {
+    fontSize = parseFloat((Math.round(parseFloat(fontSize + 'e+2')) + 'e-2'));
+    let rounded = Number(fontSize);
+    if(rounded > 0) {
+      return rounded + 'em';
+    }
+  }
+  return '1em';
+}
+
+export function pgHandleItemError(xhr, args) {
+  let pgBrowser = window.pgAdmin.Browser;
+
+  if (!xhr || !pgBrowser) {
+    return;
+  }
+
+  let contentType = xhr.getResponseHeader('Content-Type'),
+    jsonResp = contentType &&
+    contentType.indexOf('application/json') == 0 &&
+    JSON.parse(xhr.responseText);
+
+  if (
+    jsonResp && (
+      xhr.status == 503 ? (
+        jsonResp.info == 'CONNECTION_LOST' &&
+        'server' in args.info && jsonResp.data.sid >= 0 &&
+        jsonResp.data.sid == args.info.server._id
+      ) : (
+        xhr.status == 428 &&
+        jsonResp.errormsg &&
+        jsonResp.errormsg == gettext('Connection to the server has been lost.')
+      )
+    )
+  ) {
+    if (
+      args.preHandleConnectionLost &&
+      typeof(args.preHandleConnectionLost) == 'function'
+    ) {
+      args.preHandleConnectionLost.apply(this, arguments);
+    }
+
+    // Check the status of the maintenance server connection.
+    let server = pgBrowser.Nodes['server'],
+      ctx = {
+        resp: jsonResp,
+        xhr: xhr,
+        args: args,
+      },
+      reconnectServer = function() {
+        let ctx_local = this,
+          onServerConnect = function(_sid, _i, _d) {
+            // Yay - server is reconnected.
+            if (this.args.info.server._id == _sid) {
+              pgBrowser.Events.off(
+                'pgadmin:server:connected', onServerConnect
+              );
+              pgBrowser.Events.off(
+                'pgadmin:server:connect:cancelled', onConnectCancel
+              );
+
+              // Do we need to connect the disconnected server now?
+              if (
+                this.resp.data.database &&
+                this.resp.data.database != _d.db
+              ) {
+                // Server is connected now, we will need to inform the
+                // database to connect it now.
+                pgBrowser.Events.trigger(
+                  'pgadmin:database:connection:lost', this.args.item,
+                  this.resp, true
+                );
+              }
+            }
+          }.bind(ctx_local),
+          onConnectCancel = function(_sid, _item, _data) {
+            // User has cancelled the operation in between.
+            if (_sid == this.args.info.server.id) {
+              pgBrowser.Events.off('pgadmin:server:connected', onServerConnect);
+              pgBrowser.Events.off('pgadmin:server:connect:cancelled', onConnectCancel);
+
+              // Connection to the database will also be cancelled
+              pgBrowser.Events.trigger(
+                'pgadmin:database:connect:cancelled', _sid,
+                this.resp.data.database || _data.db, _item, _data
+              );
+            }
+          }.bind(ctx_local);
+
+        pgBrowser.Events.on('pgadmin:server:connected', onServerConnect);
+        pgBrowser.Events.on('pgadmin:server:connect:cancelled', onConnectCancel);
+
+        // Connection to the server has been lost, we need to inform the
+        // server first to take the action first.
+        pgBrowser.Events.trigger(
+          'pgadmin:server:connection:lost', this.args.item, this.resp
+        );
+      }.bind(ctx);
+
+    $.ajax({
+      url: server.generate_url(
+        null, 'connect', args.info.server, true, args.info
+      ),
+      dataType: 'json',
+    })
+      .done(function(res) {
+        if (res.success && 'connected' in res.data) {
+          if (res.data.connected) {
+          // Server is connected, but - the connection with the
+          // particular database has been lost.
+            pgBrowser.Events.trigger(
+              'pgadmin:database:connection:lost', args.item, jsonResp
+            );
+            return;
+          }
+        }
+
+        // Server was not connected, we should first try to connect
+        // the server.
+        reconnectServer();
+      })
+      .fail(function() {
+        reconnectServer();
+      });
+    return true;
+  } else if (jsonResp && jsonResp.info == 'CRYPTKEY_MISSING' && xhr.status == 503) {
+    /* Suppress the error here and handle in pgNotifier wherever
+     * required, as it has callback option
+     */
+    return false;
+  }
+  return false;
 }

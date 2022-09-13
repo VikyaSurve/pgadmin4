@@ -30,7 +30,7 @@ import EmptyPanelMessage from '../../../static/js/components/EmptyPanelMessage';
 import TabPanel from '../../../static/js/components/TabPanel';
 
 function parseData(data) {
-  var res = [];
+  let res = [];
 
   data.forEach((row) => {
     res.push({ ...row, icon: '' });
@@ -134,7 +134,7 @@ export default function Dashboard({
   if (!did) {
     tabs.push(gettext('Configuration'));
   }
-  tabVal == 3 && did && setTabVal(0);
+
   const tabChanged = (e, tabVal) => {
     setTabVal(tabVal);
   };
@@ -197,7 +197,7 @@ export default function Dashboard({
       id: 'btn-terminate',
       // eslint-disable-next-line react/display-name
       Cell: ({ row }) => {
-        var terminate_session_url =
+        let terminate_session_url =
           url_for('dashboard.index') + 'terminate_session' + '/' + sid,
           title = gettext('Terminate Session?'),
           txtConfirm = gettext(
@@ -268,7 +268,7 @@ export default function Dashboard({
       minWidth: 0,
       id: 'btn-cancel',
       Cell: ({ row }) => {
-        var cancel_query_url =
+        let cancel_query_url =
           url_for('dashboard.index') + 'cancel_query' + '/' + sid,
           title = gettext('Cancel Active Query?'),
           txtConfirm = gettext(
@@ -629,14 +629,14 @@ export default function Dashboard({
     // If there is only one active session means it probably our main
     // connection session
     cellAction = cellAction || null;
-    var pg_version = treeNodeInfo.server.version || null,
+    let pg_version = treeNodeInfo.server.version || null,
       is_cancel_session = cellAction === 'cancel',
       txtMessage,
       maintenance_database = treeNodeInfo.server.db,
       is_super_user,
       current_user;
 
-    var can_signal_backend =
+    let can_signal_backend =
       treeNodeInfo.server && treeNodeInfo.server.user
         ? treeNodeInfo.server.user.can_signal_backend
         : false;
@@ -725,6 +725,10 @@ export default function Dashboard({
         'Please connect to the selected server to view the dashboard.'
       );
 
+    if(tabVal == 3 && did) {
+      setTabVal(0);
+    }
+
     if (sid && props.serverConnected) {
 
       if (tabVal === 0) {
@@ -783,6 +787,27 @@ export default function Dashboard({
         aria-label="Refresh"
         title={gettext('Refresh')}
       ></PgIconButton>
+    );
+  };
+
+  const showDefaultContents = () => {
+    return (
+      sid && !props.serverConnected ? (
+        <Box className={classes.dashboardPanel}>
+          <div className={classes.emptyPanel}>
+            <EmptyPanelMessage text={msg}/>
+          </div>
+        </Box>
+      ) : (
+        <WelcomeDashboard
+          pgBrowser={pgBrowser}
+          node={node}
+          itemData={nodeData}
+          item={item}
+          sid={sid}
+          did={did}
+        />
+      )
     );
   };
 
@@ -854,22 +879,7 @@ export default function Dashboard({
             )}
           </Box>
         </Box>
-      ) : sid && !props.serverConnected ? (
-        <Box className={classes.dashboardPanel}>
-          <div className={classes.emptyPanel}>
-            <EmptyPanelMessage text={msg}/>
-          </div>
-        </Box>
-      ) : (
-        <WelcomeDashboard
-          pgBrowser={pgBrowser}
-          node={node}
-          itemData={nodeData}
-          item={item}
-          sid={sid}
-          did={did}
-        />
-      )}
+      ) : showDefaultContents() }
     </>
   );
 }

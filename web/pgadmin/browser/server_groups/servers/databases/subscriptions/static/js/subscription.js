@@ -13,9 +13,9 @@ import _ from 'lodash';
 import Notify from '../../../../../../../static/js/helpers/Notifier';
 
 define('pgadmin.node.subscription', [
-  'sources/gettext', 'sources/url_for', 'jquery',
-  'sources/pgadmin', 'pgadmin.browser', 'pgadmin.browser.collection',
-], function(gettext, url_for, $, pgAdmin, pgBrowser) {
+  'sources/gettext', 'sources/url_for',
+  'pgadmin.browser', 'pgadmin.browser.collection',
+], function(gettext, url_for, pgBrowser) {
 
   // Extend the browser's collection class for subscriptions collection
   if (!pgBrowser.Nodes['coll-subscription']) {
@@ -86,7 +86,7 @@ define('pgadmin.node.subscription', [
               return new Promise((resolve, reject)=>{
                 const api = getApiInstance();
                 if(host != undefined && port!= undefined && username!= undefined && db != undefined){
-                  var _url = pgBrowser.Nodes['cast'].generate_url.apply(
+                  let _url = pgBrowser.Nodes['cast'].generate_url.apply(
                     pgBrowser.Nodes['subscription'], [
                       null, 'get_publications', itemNodeData, false,
                       treeNodeInfo,

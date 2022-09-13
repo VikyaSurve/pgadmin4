@@ -12,6 +12,32 @@ import {onlineHelpSearch} from './online_help';
 import {menuSearch} from './menuitems_help';
 import $ from 'jquery';
 import gettext from 'sources/gettext';
+import PropTypes from 'prop-types';
+
+function HelpArticleContents({isHelpLoading, isMenuLoading, helpSearchResult}) {
+  return (isHelpLoading && !(isMenuLoading??true)) ? (
+    <div>
+      <div className='help-groups'>
+        <span className='fa fa-question-circle'></span>
+          &nbsp;HELP ARTICLES
+        {Object.keys(helpSearchResult.data).length > 10
+          ? '(10 of ' + Object.keys(helpSearchResult.data).length + ')'
+          : '(' + Object.keys(helpSearchResult.data).length + ')'
+        }
+        { Object.keys(helpSearchResult.data).length > 10
+          ? <a href={helpSearchResult.url} className='pull-right no-padding' target='_blank' rel='noreferrer'>
+          Show all &nbsp;<span className='fas fa-external-link-alt' ></span></a> : ''
+        }
+      </div>
+      <div className='pad-12'><div className="search-icon">{gettext('Searching...')}</div></div>
+    </div>) : '';
+}
+
+HelpArticleContents.propTypes = {
+  helpSearchResult: PropTypes.object,
+  isHelpLoading: PropTypes.bool,
+  isMenuLoading: PropTypes.bool
+};
 
 export function Search() {
   const wrapperRef = useRef(null);
@@ -49,11 +75,11 @@ export function Search() {
 
   // Below will be called when any changes has been made to state
   useEffect(() => {
-    if(menuSearchResult.fetched == true){
+    if(menuSearchResult.fetched){
       setIsMenuLoading(false);
     }
 
-    if(helpSearchResult.fetched == true){
+    if(helpSearchResult.fetched){
       setIsHelpLoading(false);
     }
   }, [menuSearchResult, helpSearchResult]);
@@ -97,11 +123,11 @@ export function Search() {
       for(let i=0; i < items.length; i++){
         Object.keys(items[i]).forEach( (value) => {
           if(value != 'element' && value != 'No object selected'){
-            menuItemsHtmlElement.push( <li key={ 'li-menu-' + i }><a tabIndex='0' id={ 'li-menu-' + i } href={'#'} className={ (items[i]['element'].classList.contains('disabled') == true ? 'dropdown-item menu-groups-a disabled':'dropdown-item menu-groups-a')} key={ 'menu-' + i } onClick={() => {items[i]['element'].click(); toggleDropdownMenu();}}>
+            menuItemsHtmlElement.push( <li key={ 'li-menu-' + i }><a tabIndex='0' id={ 'li-menu-' + i } href={'#'} className={ (items[i]['element'].classList.contains('disabled') ? 'dropdown-item menu-groups-a disabled':'dropdown-item menu-groups-a')} key={ 'menu-' + i } onClick={() => {items[i]['element'].click(); toggleDropdownMenu();}}>
               {value}
               <span key={ 'menu-span-' + i }>{refactorPathToMenu(items[i][value])}</span>
             </a>
-            { ((items[i]['element'].classList.contains('disabled') == true && items[i]['element'].getAttribute('data-disabled') != undefined) ? <i className='fa fa-info-circle quick-search-tooltip' data-toggle='tooltip' title={items[i]['element'].getAttribute('data-disabled')} aria-label='Test data tooltip' aria-hidden='true'></i> : '' )}
+            { ((items[i]['element'].classList.contains('disabled') && items[i]['element'].getAttribute('data-disabled') != undefined) ? <i className='fa fa-info-circle quick-search-tooltip' data-toggle='tooltip' title={items[i]['element'].getAttribute('data-disabled')} aria-label='Test data tooltip' aria-hidden='true'></i> : '' )}
             </li>);
           }
         });
@@ -180,6 +206,10 @@ export function Search() {
 
   useOutsideAlerter(wrapperRef);
 
+  const showLoader = (loading) => {
+    return loading ? <div className='pad-12'><div className="search-icon">{gettext('Searching...')}</div></div> : '';
+  };
+
   return (
     <div id='quick-search-container' onClick={setSearchTerm}></div>,
     <ul id='quick-search-container' ref={wrapperRef} className='test' role="menu">
@@ -200,7 +230,7 @@ export function Search() {
                 :''}
               <div >
 
-                { (menuSearchResult.fetched == true && isMenuLoading == false ) ?
+                { (menuSearchResult.fetched && !(isMenuLoading??true) ) ?
                   <div>
                     <div className='menu-groups'>
                       <span className='fa fa-window-maximize'></span> &nbsp;{gettext('MENU ITEMS')} ({menuSearchResult.data.length})
@@ -208,11 +238,11 @@ export function Search() {
 
 
                     {refactorMenuItems(menuSearchResult.data)}
-                  </div> : ( (isMenuLoading) ? (<div className='pad-12'><div className="search-icon">{gettext('Searching...')}</div></div>) : '')}
+                  </div> :  showLoader(isMenuLoading)}
 
-                {(menuSearchResult.data.length == 0 && menuSearchResult.fetched == true && isMenuLoading == false) ? (<div className='pad-12 no-results'><span className='fa fa-info-circle'></span> {gettext('No search results')}</div>):''}
+                {(menuSearchResult.data.length == 0 && menuSearchResult.fetched && !(isMenuLoading??true)) ? (<div className='pad-12 no-results'><span className='fa fa-info-circle'></span> {gettext('No search results')}</div>):''}
 
-                { (helpSearchResult.fetched == true && isHelpLoading == false) ?
+                { (helpSearchResult.fetched && !(isHelpLoading??true)) ?
                   <div>
                     <div className='help-groups'>
                       <span className='fa fa-question-circle'></span> &nbsp;{gettext('HELP ARTICLES')} {Object.keys(helpSearchResult.data).length > 10 ?
@@ -228,22 +258,8 @@ export function Search() {
                     })}
 
                     {(Object.keys(helpSearchResult.data).length == 0) ? (<div className='pad-12 no-results'><span className='fa fa-info-circle'></span> {gettext('No search results')}</div>):''}
-                  </div> : ( (isHelpLoading && isMenuLoading == false) ? (
-                    <div>
-                      <div className='help-groups'>
-                        <span className='fa fa-question-circle'></span>
-                          &nbsp;HELP ARTICLES
-                        {Object.keys(helpSearchResult.data).length > 10
-                          ? '(10 of ' + Object.keys(helpSearchResult.data).length + ')'
-                          : '(' + Object.keys(helpSearchResult.data).length + ')'
-                        }
-                        { Object.keys(helpSearchResult.data).length > 10
-                          ? <a href={helpSearchResult.url} className='pull-right no-padding' target='_blank' rel='noreferrer'>
-                          Show all &nbsp;<span className='fas fa-external-link-alt' ></span></a> : ''
-                        }
-                      </div>
-                      <div className='pad-12'><div className="search-icon">{gettext('Searching...')}</div></div>
-                    </div>) : '')}
+
+                  </div> : <HelpArticleContents isHelpLoading={isHelpLoading} isMenuLoading={isMenuLoading} helpSearchResult={helpSearchResult} /> }
               </div>
             </div>
           </div>

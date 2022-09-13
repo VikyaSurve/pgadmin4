@@ -81,20 +81,14 @@ class PgadminPage:
         except TimeoutException:
             pass
 
-    def click_modal(self, button_text, react_dialog=False):
+    def click_modal(self, button_text):
         time.sleep(0.5)
-        # Find active alertify dialog in case of multiple alertify dialog
+        # Find active dialog in case of multiple dialog
         # & click on that dialog
 
         # In case of react dialog we use different xpath
-        if react_dialog:
-            modal_button = self.find_by_xpath(
-                "//span[text()='{}']".format(button_text))
-        else:
-            modal_button = self.find_by_xpath(
-                "//div[contains(@class, 'alertify') and "
-                "not(contains(@class, 'ajs-hidden'))]//button[.='%s']"
-                % button_text)
+        modal_button = self.find_by_xpath(
+            "//span[text()='{}']".format(button_text))
 
         self.click_element(modal_button)
 
@@ -228,7 +222,7 @@ class PgadminPage:
         self.click_element(
             self.find_by_css_selector(QueryToolLocators.btn_clear)
         )
-        self.click_modal('Yes', True)
+        self.click_modal('Yes')
 
     def execute_query(self, query):
         self.fill_codemirror_area_with(query)
@@ -338,7 +332,7 @@ class PgadminPage:
             delete_menu_item = self.find_by_partial_link_text("Remove Server")
             self.click_element(delete_menu_item)
             self.driver.switch_to.default_content()
-            self.click_modal('Yes', True)
+            self.click_modal('Yes')
             time.sleep(1)
         else:
             print("%s Server is not removed", server_config['name'],
@@ -616,31 +610,6 @@ class PgadminPage:
         else:
             print("The databases/previous nodes not expanded", file=sys.stderr)
         return database_expanded
-
-    # TODO - We might need this method
-    # def click_to_expand_database_node(self, database_name, database_node):
-    #     """
-    #     Method clicks on specified database name from expanded databases node
-    #     of server.
-    #     :param sub_nodes_of_databases_node:
-    #     :param index_of_required_db_node:
-    #     :param name_of_database:
-    #     :return: True if particular database click is successful & expanded
-    #     """
-    #     database_expanded = False
-    #     if self.check_if_element_exist_by_xpath(
-    #     TreeAreaLocators.database_node_exp_status(database_name), 2):
-    #         database_expanded = True
-    #     else:
-    #         # TODO - This is bug 6962
-    #         webdriver.ActionChains(self.driver).click(database_node).perform()
-    #         if self.check_if_element_exist_by_xpath(
-    #         TreeAreaLocators.database_node_exp_status(database_name)):
-    #             database_expanded = True
-    #     print("click_to_expand_database_node> db_node_expanded_status - ",
-    #     database_expanded)
-    #     return database_expanded
-    #
 
     def expand_database_child_node(self, server_group_name, server_name,
                                    server_password, database_name,
@@ -1156,6 +1125,8 @@ class PgadminPage:
                         webdriver.ActionChains(self.driver).move_to_element(
                             top_el).perform()
                         r_scroll -= 1
+                else:
+                    break
         else:
             print("check_if_element_exists_with_scroll > Element NOT found",
                   xpath, file=sys.stderr)
@@ -1268,5 +1239,5 @@ class PgadminPage:
         return element_located_status
 
     def clear_edit_box(self, edit_box_webelement):
-        while not edit_box_webelement.get_attribute("value") == "":
+        while edit_box_webelement.get_attribute("value") != "":
             edit_box_webelement.send_keys(Keys.BACK_SPACE)

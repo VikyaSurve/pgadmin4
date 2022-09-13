@@ -32,7 +32,7 @@ const useStyles = makeStyles(() =>
 export function AzureCredentials(props) {
   const [cloudDBCredInstance, setCloudDBCredInstance] = React.useState();
 
-  var _eventBus = React.useContext(CloudWizardEventsContext);
+  let _eventBus = React.useContext(CloudWizardEventsContext);
   React.useMemo(() => {
     const azureCloudDBCredSchema = new AzureCredSchema({
       authenticateAzure:(auth_type, azure_tenant_id) => {
@@ -85,7 +85,7 @@ export function AzureCredentials(props) {
           }, 1000);
         });
       }
-    });
+    }, {}, _eventBus);
     setCloudDBCredInstance(azureCloudDBCredSchema);
   }, [props.cloudProvider]);
 

@@ -10,9 +10,9 @@
 import ResourceGroupSchema from './resource_group.ui';
 
 define('pgadmin.node.resource_group', [
-  'sources/gettext', 'sources/url_for', 'underscore', 'pgadmin.browser',
+  'sources/gettext', 'sources/url_for', 'pgadmin.browser',
   'pgadmin.browser.collection',
-], function(gettext, url_for, _, pgBrowser) {
+], function(gettext, url_for, pgBrowser) {
 
   // Extend the browser's collection class for resource group collection
   if (!pgBrowser.Nodes['coll-resource_group']) {
@@ -57,7 +57,7 @@ define('pgadmin.node.resource_group', [
            * Resource Group only supported in PPAS 9.4 and above.
            */
           enable: function(node, item) {
-            var treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
+            let treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
               server = treeData['server'];
             return server.connected && node.server_type === 'ppas' &&
               node.version >= 90400;

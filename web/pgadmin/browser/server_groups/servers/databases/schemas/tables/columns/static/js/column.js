@@ -8,14 +8,13 @@
 //////////////////////////////////////////////////////////////
 
 import { getNodeColumnSchema } from './column.ui';
+import _ from 'lodash';
 
 define('pgadmin.node.column', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore', 'backbone',
-  'sources/pgadmin', 'pgadmin.browser', 'pgadmin.backform', 'pgadmin.backgrid',
+  'sources/gettext', 'sources/url_for', 'pgadmin.browser',
   'pgadmin.node.schema.dir/schema_child_tree_node', 'pgadmin.browser.collection',
 ], function(
-  gettext, url_for, $, _, Backbone, pgAdmin, pgBrowser, Backform, Backgrid,
-  SchemaChildTreeNode
+  gettext, url_for, pgBrowser, SchemaChildTreeNode
 ) {
 
   if (!pgBrowser.Nodes['coll-column']) {
@@ -101,10 +100,10 @@ define('pgadmin.node.column', [
       // Below function will enable right click menu for creating column
       canCreate: function(itemData, item, data) {
         // If check is false then , we will allow create menu
-        if (data && data.check == false)
+        if (data && !data.check)
           return true;
 
-        var t = pgBrowser.tree, i = item, d = itemData, parents = [];
+        let t = pgBrowser.tree, i = item, d = itemData, parents = [];
         // To iterate over tree to check parent node
         while (i) {
           // If it is schema then allow user to create table

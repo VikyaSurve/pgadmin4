@@ -8,9 +8,9 @@
 //////////////////////////////////////////////////////////////
 
 import gettext from 'sources/gettext';
-import Alertify from 'pgadmin.alertifyjs';
 import pgWindow from 'sources/window';
 import { retrieveNameSpaceName, retrieveNodeName } from './show_view_data';
+import Notify from '../../../../static/js/helpers/Notifier';
 
 const pgAdmin = pgWindow.pgAdmin;
 
@@ -43,7 +43,7 @@ export function getTitle(pgAdmin, browserPref, parentData=null, isConnTitle=fals
 }
 
 export function getPanelTitle(pgBrowser, selected_item=null, custom_title=null, parentData=null, conn_title=false, db_label=null) {
-  var preferences = pgBrowser.get_preferences_for_module('browser');
+  let preferences = pgBrowser.get_preferences_for_module('browser');
   if(selected_item == null && parentData == null) {
     selected_item = pgBrowser.tree.selected();
   }
@@ -60,7 +60,7 @@ export function getPanelTitle(pgBrowser, selected_item=null, custom_title=null, 
     db_label = getDatabaseLabel(parentData);
   }
 
-  var qt_title_placeholder = '';
+  let qt_title_placeholder = '';
   if (!conn_title) {
     if (custom_title) {
       qt_title_placeholder = custom_title;
@@ -71,7 +71,7 @@ export function getPanelTitle(pgBrowser, selected_item=null, custom_title=null, 
     qt_title_placeholder = pgAdmin['qt_default_placeholder'];
   }
 
-  var title_data = {
+  let title_data = {
     'database': db_label,
     'username': parentData.server.user.name,
     'server': parentData.server._label,
@@ -139,14 +139,7 @@ export function generateTitle(title_placeholder, title_data) {
  * This function is used refresh the db node after showing alert to the user
  */
 export function refresh_db_node(message, dbNode) {
-  Alertify.alert()
-    .setting({
-      'title': gettext('Database moved/renamed'),
-      'label':gettext('OK'),
-      'message': gettext(message),
-      'onok': function(){
-        //Set the original db name as soon as user clicks ok button
-        pgAdmin.Browser.Nodes.database.callbacks.refresh(undefined, dbNode);
-      },
-    }).show();
+  Notify.alert(gettext('Database moved/renamed'), gettext(message), ()=>{
+    pgAdmin.Browser.Nodes.database.callbacks.refresh(undefined, dbNode);
+  });
 }

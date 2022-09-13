@@ -9,14 +9,15 @@
 import { getNodeListByName, getNodeAjaxOptions } from '../../../../../../../../static/js/node_ajax';
 import TriggerSchema from './trigger.ui';
 import Notify from '../../../../../../../../../static/js/helpers/Notifier';
+import _ from 'lodash';
 
 define('pgadmin.node.trigger', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
+  'sources/gettext', 'sources/url_for', 'jquery',
   'sources/pgadmin', 'pgadmin.browser',
-  'pgadmin.backform', 'pgadmin.node.schema.dir/schema_child_tree_node',
+  'pgadmin.node.schema.dir/schema_child_tree_node',
   'pgadmin.browser.collection',
 ], function(
-  gettext, url_for, $, _, pgAdmin, pgBrowser, Backform, SchemaChildTreeNode
+  gettext, url_for, $, pgAdmin, pgBrowser, SchemaChildTreeNode
 ) {
 
   if (!pgBrowser.Nodes['coll-trigger']) {
@@ -97,7 +98,7 @@ define('pgadmin.node.trigger', [
       callbacks: {
         /* Enable trigger */
         enable_trigger: function(args) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -106,7 +107,7 @@ define('pgadmin.node.trigger', [
           if (!d)
             return false;
 
-          var data = d;
+          let data = d;
           $.ajax({
             url: obj.generate_url(i, 'enable' , d, true),
             type:'PUT',
@@ -135,7 +136,7 @@ define('pgadmin.node.trigger', [
         },
         /* Disable trigger */
         disable_trigger: function(args) {
-          var input = args || {},
+          let input = args || {},
             obj = this,
             t = pgBrowser.tree,
             i = input.item || t.selected(),
@@ -144,7 +145,7 @@ define('pgadmin.node.trigger', [
           if (!d)
             return false;
 
-          var data = d;
+          let data = d;
           $.ajax({
             url: obj.generate_url(i, 'enable' , d, true),
             type:'PUT',
@@ -190,7 +191,7 @@ define('pgadmin.node.trigger', [
       canCreate: SchemaChildTreeNode.isTreeItemOfChildOfSchema,
       // Check to whether trigger is disable ?
       canCreate_with_trigger_enable: function(itemData, item, data) {
-        var treeData = pgBrowser.tree.getTreeNodeHierarchy(item);
+        let treeData = pgBrowser.tree.getTreeNodeHierarchy(item);
         if ('view' in treeData) {
           return false;
         }
@@ -200,7 +201,7 @@ define('pgadmin.node.trigger', [
       },
       // Check to whether trigger is enable ?
       canCreate_with_trigger_disable: function(itemData, item, data) {
-        var treeData = pgBrowser.tree.getTreeNodeHierarchy(item);
+        let treeData = pgBrowser.tree.getTreeNodeHierarchy(item);
         if ('view' in treeData) {
           return false;
         }

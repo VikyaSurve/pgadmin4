@@ -59,10 +59,7 @@ export default class ForeignTableSchema extends BaseUISchema {
   }
 
   canEditDeleteRowColumns(colstate) {
-    if (!isEmptyString(colstate.inheritedfrom)) {
-      return false;
-    }
-    return true;
+    return isEmptyString(colstate.inheritedfrom);
   }
 
   getTableOid(tabId) {
@@ -116,7 +113,7 @@ export default class ForeignTableSchema extends BaseUISchema {
             let newColInherits = state.inherits || [];
             let oldColInherits = actionObj.oldState.inherits || [];
 
-            var tabName = undefined;
+            let tabName = undefined;
             let tabColsResponse;
 
             // Add columns logic
@@ -183,7 +180,7 @@ export default class ForeignTableSchema extends BaseUISchema {
         canAdd: true, canDelete: true, columns: ['conname','consrc', 'connoinherit', 'convalidated'],
         canEdit: true,
         canDeleteRow: function(state) {
-          return (state.conislocal == true || _.isUndefined(state.conislocal)) ? true : false;
+          return (state.conislocal || _.isUndefined(state.conislocal)) ? true : false;
         },
         canEditRow: function(state) {
           return obj.isNew(state);
@@ -328,7 +325,7 @@ export class ColumnSchema extends BaseUISchema {
         id: 'typlen', label: gettext('Length'), cell: 'int',
         deps: ['datatype'], type: 'int', group: gettext('Definition'), width: 120, minWidth: 120,
         disabled: (state) => {
-          var val = state.typlen;
+          let val = state.typlen;
           // We will store type from selected from combobox
           if(!(_.isUndefined(state.inheritedid)
             || _.isNull(state.inheritedid)
@@ -341,7 +338,7 @@ export class ColumnSchema extends BaseUISchema {
             return true;
           }
 
-          var of_type = state.datatype,
+          let of_type = state.datatype,
             has_length = false;
           if(obj.type_options) {
             state.is_tlength = false;
@@ -378,7 +375,7 @@ export class ColumnSchema extends BaseUISchema {
         id: 'precision', label: gettext('Precision'), cell: 'int', minWidth: 60,
         deps: ['datatype'], type: 'int', group: gettext('Definition'),
         disabled: (state) => {
-          var val = state.precision;
+          let val = state.precision;
           if(!(_.isUndefined(state.inheritedid)
             || _.isNull(state.inheritedid)
             || _.isUndefined(state.inheritedfrom)
@@ -390,7 +387,7 @@ export class ColumnSchema extends BaseUISchema {
             return true;
           }
 
-          var of_type = state.datatype,
+          let of_type = state.datatype,
             has_precision = false;
 
           if(obj.type_options) {
@@ -430,10 +427,8 @@ export class ColumnSchema extends BaseUISchema {
             || _.isNull(state.inheritedid)
             || _.isUndefined(state.inheritedfrom)
             || _.isNull(state.inheritedfrom))) { return false; }
-          if (obj.nodeInfo.server.version < 90300){
-            return false;
-          }
-          return true;
+
+          return obj.nodeInfo.server.version >= 90300;
         },
       },
       {
@@ -531,10 +526,7 @@ export class CheckConstraintSchema extends BaseUISchema {
       editable: (state) => {
         if (_.isUndefined(obj.isNew)) { return true; }
         if (!obj.isNew(state)) {
-          if(state.convalidated && obj.convalidated_default) {
-            return false;
-          }
-          return true;
+          return !(state.convalidated && obj.convalidated_default);
         }
         return true;
       },

@@ -22,10 +22,11 @@ import ChangePasswordContent from './ChangePasswordContent';
 import NamedRestoreContent from './NamedRestoreContent';
 import ChangeOwnershipContent from './ChangeOwnershipContent';
 import UrlDialogContent from './UrlDialogContent';
+import RenamePanelContent from './RenamePanelContent';
 
-function mountDialog(title, getDialogContent, docker=undefined, width, height) {
+function mountDialog(title, getDialogContent, docker=undefined, width=undefined, height=undefined) {
   // Register dialog panel
-  var panel;
+  let panel;
   if (docker) {
     pgAdmin.Browser.Node.registerUtilityPanel(docker);
     panel = pgAdmin.Browser.Node.addUtilityPanel(width||pgAdmin.Browser.stdW.md, height||undefined, docker);
@@ -34,7 +35,7 @@ function mountDialog(title, getDialogContent, docker=undefined, width, height) {
     panel = pgAdmin.Browser.Node.addUtilityPanel(width||pgAdmin.Browser.stdW.md);
   }
 
-  var j = panel.$container.find('.obj_properties').first();
+  let j = panel.$container.find('.obj_properties').first();
   panel.title(title);
 
   const onClose = ()=> {
@@ -60,7 +61,7 @@ function mountDialog(title, getDialogContent, docker=undefined, width, height) {
 
 // This functions is used to show the connect server password dialog.
 export function showServerPassword() {
-  var title = arguments[0],
+  let title = arguments[0],
     formJson = arguments[1],
     nodeObj = arguments[2],
     nodeData = arguments[3],
@@ -82,7 +83,7 @@ export function showServerPassword() {
         data={formJson}
         onOK={(formData)=>{
           const api = getApiInstance();
-          var _url = nodeObj.generate_url(itemNodeData, 'connect', nodeData, true);
+          let _url = nodeObj.generate_url(itemNodeData, 'connect', nodeData, true);
           if (!status) {
             treeNodeInfo.setLeaf(itemNodeData);
             treeNodeInfo.removeIcon(itemNodeData);
@@ -111,7 +112,7 @@ export function showServerPassword() {
 // This functions is used to show the connect server password dialog when
 // launch from Schema Diff tool.
 export function showSchemaDiffServerPassword() {
-  var docker = arguments[0],
+  let docker = arguments[0],
     title = arguments[1],
     formJson = arguments[2],
     serverID = arguments[3],
@@ -131,7 +132,7 @@ export function showSchemaDiffServerPassword() {
         data={formJson}
         onOK={(formData)=>{
           const api = getApiInstance();
-          var _url = url_for('schema_diff.connect_server', {'sid': serverID});
+          let _url = url_for('schema_diff.connect_server', {'sid': serverID});
 
           api.post(_url, formData)
             .then(res=>{
@@ -190,7 +191,7 @@ export function showMasterPassword(isPWDPresent, errmsg, masterpass_callback_que
             gettext('This will remove all the saved passwords. This will also remove established connections to '
             + 'the server and you may need to reconnect again. Do you wish to continue?'),
             function() {
-              var _url = url_for('browser.reset_master_password');
+              let _url = url_for('browser.reset_master_password');
 
               api.delete(_url)
                 .then(() => {
@@ -218,7 +219,7 @@ export function showMasterPassword(isPWDPresent, errmsg, masterpass_callback_que
 }
 
 export function showChangeServerPassword() {
-  var title = arguments[0],
+  let title = arguments[0],
     nodeData = arguments[1],
     nodeObj = arguments[2],
     itemNodeData = arguments[3],
@@ -233,7 +234,7 @@ export function showChangeServerPassword() {
         onSave={(isNew, data)=>{
           return new Promise((resolve, reject)=>{
             const api = getApiInstance();
-            var _url = nodeObj.generate_url(itemNodeData, 'change_password', nodeData, true);
+            let _url = nodeObj.generate_url(itemNodeData, 'change_password', nodeData, true);
 
             api.post(_url, data)
               .then(({data: respData})=>{
@@ -264,7 +265,7 @@ export function showChangeServerPassword() {
 }
 
 export function showNamedRestorePoint() {
-  var title = arguments[0],
+  let title = arguments[0],
     nodeData = arguments[1],
     nodeObj = arguments[2],
     itemNodeData = arguments[3];
@@ -280,7 +281,7 @@ export function showNamedRestorePoint() {
         }}
         onOK={(formData)=>{
           const api = getApiInstance();
-          var _url = nodeObj.generate_url(itemNodeData, 'restore_point', nodeData, true);
+          let _url = nodeObj.generate_url(itemNodeData, 'restore_point', nodeData, true);
 
           api.post(_url, formData)
             .then(res=>{
@@ -297,7 +298,7 @@ export function showNamedRestorePoint() {
 }
 
 export function showChangeOwnership() {
-  var title = arguments[0],
+  let title = arguments[0],
     userList = arguments[1],
     noOfSharedServers = arguments[2],
     deletedUser = arguments[3],
@@ -352,4 +353,30 @@ export function showUrlDialog() {
   },
   { isFullScreen: false, isResizeable: true, showFullScreen: true, isFullWidth: true,
     dialogWidth: width || pgAdmin.Browser.stdW.md, dialogHeight: height || pgAdmin.Browser.stdH.md});
+}
+
+export function showRenamePanel() {
+  let title = arguments[0],
+    preferences = arguments[1],
+    panel = arguments[2],
+    tabType= arguments[3],
+    data= arguments[4];
+
+  mountDialog(gettext(`Rename Panel ${_.escape(title)}`), (onClose, setNewSize)=> {
+    return <Theme>
+      <RenamePanelContent
+        setHeight={(containerHeight)=>{
+          setNewSize(pgAdmin.Browser.stdW.md, containerHeight);
+        }}
+        closeModal={()=>{
+          onClose();
+        }}
+        panel={panel}
+        tabType={tabType}
+        title={title}
+        data={data}
+        preferences={preferences}
+      />
+    </Theme>;
+  });
 }

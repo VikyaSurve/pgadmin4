@@ -7,15 +7,15 @@
 //
 //////////////////////////////////////////////////////////////
 import {getPanelView} from './panel_view';
+import _ from 'lodash';
 
 define([
-  'sources/gettext', 'jquery', 'underscore', 'sources/pgadmin',
-  'backbone', 'alertify', 'backform', 'backgrid', 'sources/browser/generate_url',
-  'pgadmin.backform', 'pgadmin.backgrid',
-  'pgadmin.browser.node', 'backgrid.select.all',
-], function(gettext, $, _, pgAdmin, Backbone, Alertify, Backform, Backgrid, generateUrl) {
+  'sources/gettext', 'sources/pgadmin',
+  'sources/browser/generate_url',
+  'pgadmin.browser.node',
+], function(gettext, pgAdmin, generateUrl) {
 
-  var pgBrowser = pgAdmin.Browser = pgAdmin.Browser || {};
+  let pgBrowser = pgAdmin.Browser = pgAdmin.Browser || {};
 
   // It has already been defined.
   // Avoid running this script again.
@@ -102,17 +102,17 @@ define([
          * Using list, and collection functions of a node to get the nodes
          * under the collection, and properties of the collection respectively.
          */
-        var opURL = {
+        let opURL = {
             'properties': 'obj',
             'children': 'nodes',
             'drop': 'obj',
           },
           self = this;
-        var collectionPickFunction = function (treeInfoValue, treeInfoKey) {
+        let collectionPickFunction = function (treeInfoValue, treeInfoKey) {
           return (treeInfoKey != self.type);
         };
-        var treeInfo = pgBrowser.tree.getTreeNodeHierarchy(item);
-        var actionType = type in opURL ? opURL[type] : type;
+        let treeInfo = pgBrowser.tree.getTreeNodeHierarchy(item);
+        let actionType = type in opURL ? opURL[type] : type;
         return generateUrl.generate_url(
           pgAdmin.Browser.URL, treeInfo, actionType, self.node,
           collectionPickFunction
@@ -129,7 +129,7 @@ define([
         }
       },
       show_psql_tool: function(args) {
-        var input = args || {},
+        let input = args || {},
           t = pgBrowser.tree,
           i = input.item || t.selected(),
           d = i ? t.itemData(i) : undefined;

@@ -11,13 +11,13 @@ import { getNodeListByName } from '../../../../../static/js/node_ajax';
 import { getNodePrivilegeRoleSchema } from '../../../static/js/privilege.ui';
 import { getNodeVariableSchema } from '../../../static/js/variable.ui';
 import TablespaceSchema from './tablespace.ui';
+import _ from 'lodash';
 
 define('pgadmin.node.tablespace', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore', 'backbone',
-  'sources/pgadmin', 'pgadmin.browser', 'pgadmin.browser.collection', 'pgadmin.browser.node.ui',
-  'pgadmin.browser.server.privilege',
+  'sources/gettext', 'sources/url_for',
+  'pgadmin.browser', 'pgadmin.browser.collection',
 ], function(
-  gettext, url_for, $, _, Backbone, pgAdmin, pgBrowser
+  gettext, url_for, pgBrowser
 ) {
 
   if (!pgBrowser.Nodes['coll-tablespace']) {
@@ -76,7 +76,7 @@ define('pgadmin.node.tablespace', [
         ]);
       },
       can_create_tablespace: function(node, item) {
-        var treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
+        let treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
           server = treeData['server'];
 
         return server.connected && server.user.is_superuser;
@@ -102,10 +102,10 @@ define('pgadmin.node.tablespace', [
 
         // Default values!
         initialize: function(attrs, args) {
-          var isNew = (_.size(attrs) === 0);
+          let isNew = (_.size(attrs) === 0);
 
           if (isNew) {
-            var userInfo = pgBrowser.serverInfo[args.node_info.server._id].user;
+            let userInfo = pgBrowser.serverInfo[args.node_info.server._id].user;
             this.set({'spcuser': userInfo.name}, {silent: true});
           }
           pgBrowser.Node.Model.prototype.initialize.apply(this, arguments);

@@ -10,12 +10,10 @@
 import gettext from 'sources/gettext';
 import BaseUISchema from 'sources/SchemaView/base_schema.ui';
 import { isEmptyString } from 'sources/validators';
-import { CloudWizardEventsContext } from './CloudWizard';
-import React from 'react';
 import pgAdmin from 'sources/pgadmin';
 
 class AzureCredSchema extends BaseUISchema {
-  constructor(fieldOptions = {}, initValues = {}) {
+  constructor(fieldOptions = {}, initValues = {}, eventBus) {
     super({
       oid: null,
       auth_type: 'interactive_browser_credential',
@@ -31,7 +29,7 @@ class AzureCredSchema extends BaseUISchema {
       ...fieldOptions,
     };
 
-    this.eventBus = React.useContext(CloudWizardEventsContext);
+    this.eventBus = eventBus;
   }
 
   get idAttribute() {
@@ -463,10 +461,7 @@ class AzureDatabaseSchema extends BaseUISchema {
   }
 
   validate(data, setErrMsg) {
-    if (this.validateDbUserName(data, setErrMsg) || this.validateDbPassword(data, setErrMsg)) {
-      return true;
-    }
-    return false;
+    return this.validateDbUserName(data, setErrMsg) || this.validateDbPassword(data, setErrMsg);
   }
 
   get baseFields() {
@@ -729,10 +724,7 @@ class AzureClusterSchema extends BaseUISchema {
       return true;
     }
 
-    if(this.validateProjectDetails(data, setErr) || this.validateInstanceDetails(data, setErr) || this.validateNetworkDetails(data, setErr)){
-      return true;
-    }
-    return false;
+    return (this.validateProjectDetails(data, setErr) || this.validateInstanceDetails(data, setErr) || this.validateNetworkDetails(data, setErr));
   }
 }
 

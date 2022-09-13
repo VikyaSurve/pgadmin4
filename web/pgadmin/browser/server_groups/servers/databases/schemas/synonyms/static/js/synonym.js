@@ -9,14 +9,14 @@
 
 import { getNodeAjaxOptions, getNodeListByName } from '../../../../../../../static/js/node_ajax';
 import SynonymSchema from './synonym.ui';
+import _ from 'lodash';
 
 define('pgadmin.node.synonym', [
-  'sources/gettext', 'sources/url_for', 'jquery', 'underscore',
-  'sources/pgadmin', 'pgadmin.browser', 'pgadmin.alertifyjs',
+  'sources/gettext', 'sources/url_for',
+  'sources/pgadmin', 'pgadmin.browser',
   'pgadmin.node.schema.dir/child', 'pgadmin.node.schema.dir/schema_child_tree_node',
   'pgadmin.browser.collection',
-], function(gettext, url_for, $, _, pgAdmin, pgBrowser, alertify,
-  schemaChild, schemaChildTreeNode) {
+], function(gettext, url_for, pgAdmin, pgBrowser, schemaChild, schemaChildTreeNode) {
 
   if (!pgBrowser.Nodes['coll-synonym']) {
     pgAdmin.Browser.Nodes['coll-synonym'] =
@@ -83,7 +83,7 @@ define('pgadmin.node.synonym', [
             }),
             synobjschema: ()=>getNodeListByName('schema', treeNodeInfo, itemNodeData, {}, (m)=>{
               // Exclude PPAS catalogs
-              var exclude_catalogs = ['pg_catalog', 'sys', 'dbo', 'pgagent', 'information_schema', 'dbms_job_procedure'];
+              let exclude_catalogs = ['pg_catalog', 'sys', 'dbo', 'pgagent', 'information_schema', 'dbms_job_procedure'];
               return m && _.indexOf(exclude_catalogs, m.label) == -1;
             }),
             getTargetObjectOptions: (targettype, synobjschema) =>
@@ -102,21 +102,17 @@ define('pgadmin.node.synonym', [
       },
       canCreate: function(itemData, item, data) {
         //If check is false then , we will allow create menu
-        if (data && data.check == false)
+        if (data && !data.check)
           return true;
 
-        var treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
+        let treeData = pgBrowser.tree.getTreeNodeHierarchy(item),
           server = treeData['server'];
 
         if (server && server.server_type === 'pg')
           return false;
 
         // If it is catalog then don't allow user to create synonyms
-        if (treeData['catalog'] != undefined)
-          return false;
-
-        // by default we do not want to allow create menu
-        return true;
+        return treeData['catalog'] == undefined;
       },
     });
 
