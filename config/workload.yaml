@@ -1,13 +1,15 @@
 apiVersion: carto.run/v1alpha1
-kind: Workload
-metadata:
-  name: pgadmin4
-  labels:
-    apps.tanzu.vmware.com/workload-type: web
-    app.kubernetes.io/part-of: pgadmin4
-spec:
-  source:
-    git:
-      url: https://github.com/VikyaSurve/pgadmin4
-      ref:
-        branch: master
+ kind: Workload
+ metadata:
+   labels:
+     app.kubernetes.io/part-of: pgadmin4
+     apps.tanzu.vmware.com/workload-type: web
+   name: pgadmin4
+   namespace: tap-install
+ spec:
+   image: tanzuaksrespos.azurecr.io/supply-chain/pgadmin4-tap-install
+   ports:
+    - containerPort: 8080
+    name: user-port
+    protocol: TCP
+   
