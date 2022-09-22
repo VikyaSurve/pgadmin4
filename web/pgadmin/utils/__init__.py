@@ -14,9 +14,10 @@ import subprocess
 from collections import defaultdict
 from operator import attrgetter
 
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, url_for
 from flask_babel import gettext
 from flask_security import current_user, login_required
+from flask_security.utils import get_post_login_redirect
 from threading import Lock
 
 from .paths import get_storage_directory
@@ -831,3 +832,18 @@ class KeyManager:
 
             if user is not None:
                 del self.users[current_user.id]
+
+
+def get_safe_post_login_redirect():
+    allow_list = [
+        url_for('browser.index')
+    ]
+    if "SCRIPT_NAME" in os.environ and os.environ["SCRIPT_NAME"]:
+        allow_list.append(os.environ["SCRIPT_NAME"])
+
+    url = get_post_login_redirect()
+    for item in allow_list:
+        if url.startswith(item):
+            return url
+
+    return os.environ.get("SCRIPT_NAME", "/")
