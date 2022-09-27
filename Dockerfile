@@ -204,6 +204,6 @@ USER pgadmin
 
 # Finish up
 VOLUME /var/lib/pgadmin
-EXPOSE 80 443
+EXPOSE 80 80
 
 ENTRYPOINT ["/entrypoint.sh"]
